@@ -36,6 +36,15 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'list-display',
+        children: [
+            {
+                path: '',
+                loadChildren: '../list-display/list-display.module#ListDisplayPageModule'
+            }
+          ]
+        },
+      {
         path: '',
         redirectTo: '/tabs/tab1',
         pathMatch: 'full'

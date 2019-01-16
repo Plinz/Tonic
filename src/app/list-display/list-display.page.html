@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Tab List
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list lines="none">
+    <ion-list-header>
+      <ion-label>Resources</ion-label>
+    </ion-list-header>
+    <ion-item *ngFor="let item of list">
+      <ion-button [href]="'/display-list-item/' + item.uuid" routerDirection="forward">{{item.name}}</ion-button>
+      <ion-label>{{nbNotCompleted(item.uuid)}}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
