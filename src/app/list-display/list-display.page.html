@@ -8,13 +8,27 @@
 
 
 <ion-content padding>
-  <ion-list lines="none">
+  <ion-list no-lines>
     <ion-list-header>
-      <ion-label>Resources</ion-label>
+      <ion-label>Lists</ion-label>
+      <ion-fab>
+        <button ion-fab mini  color="primary" (click)="add()">+</button>
+      </ion-fab>
     </ion-list-header>
-    <ion-item *ngFor="let item of list">
-      <ion-button [href]="'/display-list-item/' + item.uuid" routerDirection="forward">{{item.name}}</ion-button>
-      <ion-label>{{nbNotCompleted(item.uuid)}}</ion-label>
-    </ion-item>
+    <ion-item-sliding *ngFor="let item of list" #slidingItem>
+      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} <ion-label>{{nbNotCompleted(item.uuid)}} items not finished !</ion-label></ion-item>
+      <ion-item-options side="end">
+        <button ion-button color="primary" (click)="delete(item, slidingItem)">
+          <ion-icon name="text"></ion-icon>
+          Delete
+        </button>
+      </ion-item-options>
+      <ion-item-options side="start">
+        <button ion-button color="primary" (click)="edit(item)">
+          <ion-icon name="text"></ion-icon>
+          Edit
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
 </ion-content>

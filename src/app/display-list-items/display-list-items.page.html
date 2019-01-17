@@ -1,17 +1,27 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      {{list.name}}
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-
-<ion-content padding>
-  <ion-list lines="none">
-    <ion-item *ngFor="let item of list.items">
-      <ion-label>{{item.name}}</ion-label>
-      <ion-label>{{item.desc}}</ion-label>
-    </ion-item>
-  </ion-list>
-</ion-content>
+<ion-card>
+  <ion-card-header>
+    {{list.name}}
+  </ion-card-header>
+  <ion-card-content>
+      <ion-list no-lines>
+          <ion-item-sliding *ngFor="let item of list.items" #slidingItem>
+            <ion-item>{{item.name}} {{item.desc}} <ion-checkbox color="dark" [(ngModel)]="item.complete"></ion-checkbox></ion-item>
+            <ion-item-options side="end">
+              <button ion-button color="primary" (click)="delete(item, slidingItem)">
+                <ion-icon name="text"></ion-icon>
+                Delete
+              </button>
+            </ion-item-options>
+            <ion-item-options side="start">
+              <button ion-button color="primary" (click)="edit(item)">
+                <ion-icon name="text"></ion-icon>
+                Edit
+              </button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+  </ion-card-content>
+</ion-card>
+<ion-fab>
+  <button ion-fab mini  color="primary" (click)="add()">+</button>
+</ion-fab>

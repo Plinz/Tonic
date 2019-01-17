@@ -44,6 +44,15 @@ const routes: Routes = [
             }
           ]
         },
+        {
+          path: 'display-list-items',
+          children: [
+              {
+                  path: ':id',
+                  loadChildren: '../display-list-items/display-list-items.module#DisplayListItemsPageModule'
+              }
+            ]
+          },
       {
         path: '',
         redirectTo: '/tabs/tab1',

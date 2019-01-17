@@ -1,7 +1,9 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TodoServiceProvider } from '../service/todo-service/todo-service.service';
-import {TodoItem, TodoList} from "../domain/todo";
-import { Params, ActivatedRoute } from '@angular/router';
+import { TodoItem, TodoList } from "../domain/todo";
+import { ActivatedRoute } from '@angular/router';
+import { AlertController, ModalController, IonItemSliding } from '@ionic/angular';
+import { ModalListItemComponent } from './modal/modal-list-item.page';
 
 @Component({
   selector: 'app-display-list-items',
@@ -13,13 +15,69 @@ export class DisplayListItemsPage implements OnInit {
   list: TodoList;
   uuid: string;
 
-  constructor(private todoServiceProvider: TodoServiceProvider, private route : ActivatedRoute) { }
+  constructor(private todoServiceProvider: TodoServiceProvider,
+    private route: ActivatedRoute,
+    private alertCtrl: AlertController,
+    public modalController: ModalController) { }
 
   ngOnInit() {
-    this.route.params.subscribe((params : Params) => {
-      this.uuid = params['id'];
-    });
-    this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res});
+    this.uuid = this.route.snapshot.paramMap.get('id');
+    this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
   }
 
+  async deleteConfirm(itemId: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Confirm!',
+      message: 'Do you want to delete this item?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+          }
+        }, {
+          text: 'Delete',
+          handler: () => {
+            this.todoServiceProvider.deleteTodo(this.uuid, itemId);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async add() {
+    const modal: HTMLIonModalElement =
+       await this.modalController.create({
+          component: ModalListItemComponent,
+          componentProps: {
+            listUuid: this.uuid,
+            itemName: '',
+            itemDescription: '',
+            mode: 'add'
+          }
+    });
+    await modal.present();
+}
+
+async edit(itemChosen: TodoItem) {
+  const modal: HTMLIonModalElement =
+     await this.modalController.create({
+        component: ModalListItemComponent,
+        componentProps: {
+          listUuid: this.uuid,
+          itemName: itemChosen.name,
+          itemDescription: itemChosen.desc,
+          mode: 'edit',
+          item: itemChosen
+        }
+  });
+  await modal.present();
+}
+
+  async delete(item: TodoItem,slidingItem: IonItemSliding) {
+    await slidingItem.close();
+    this.deleteConfirm(item.uuid);
+  }
 }

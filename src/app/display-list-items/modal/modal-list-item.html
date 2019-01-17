@@ -1,0 +1,11 @@
+<ion-list>
+    <ion-item>
+        <ion-label color="primary" floating>Item name</ion-label>
+        <ion-input [(ngModel)]="itemName"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label color="primary" floating>Description</ion-label>
+        <ion-input [(ngModel)]="itemDescription"></ion-input>
+    </ion-item>
+    <ion-button (click)="add()">Add item</ion-button>
+</ion-list>

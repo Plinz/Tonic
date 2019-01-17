@@ -10,6 +10,7 @@ import 'rxjs/Rx';
     providedIn: 'root',
 })
 export class TodoServiceProvider {
+  idGenerator = 0;
 
   data:TodoList[] = [
     {
@@ -56,7 +57,6 @@ export class TodoServiceProvider {
   ];
 
   constructor() {
-    console.log('Hello TodoServiceProvider Provider');
   }
 
   public getList(): Observable<TodoList[]> {
@@ -71,11 +71,33 @@ export class TodoServiceProvider {
     return of(this.data.find(d => d.uuid == uuid).items);
   }
 
+  public deleteList(listId : String) {
+    const index = this.data.findIndex(d => d.uuid === listId);
+    this.data.splice(index,1);
+  }
+
+  public addList(listName: string) {
+    const newList: TodoList = {uuid: this.idGenerator.toString(),name: listName, items: []}; 
+    this.data.push(newList);
+    this.idGenerator++;
+  }
+
+  public addTodo(listUuid: string, itemName: string, itemDescription: string) {
+    const newTodo: TodoItem = {uuid: this.idGenerator.toString(),name: itemName,desc: itemDescription,complete: false};
+    this.idGenerator++;
+    const index = this.data.findIndex(d => d.uuid === listUuid);
+    this.data[index].items.push(newTodo);
+  }
 
   public editTodo(listUuid : String, editedItem: TodoItem) {
     let items = this.data.find(d => d.uuid == listUuid).items;
     let index = items.findIndex(value => value.uuid == editedItem.uuid);
     items[index] = editedItem;
+  }
+
+  public editListName(listUuid : String, name: string){
+    let index = this.data.findIndex(d=> d.uuid === listUuid);
+    this.data[index].name = name;
   }
 
   public deleteTodo(listUuid: String, uuid: String) {
