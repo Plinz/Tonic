@@ -1,6 +1,7 @@
 export interface TodoList {
   uuid? : string,
   name : string,
+  nbNotFinished: number,
   items : TodoItem[]
 }
 

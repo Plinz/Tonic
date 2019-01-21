@@ -16,7 +16,7 @@
       </ion-fab>
     </ion-list-header>
     <ion-item-sliding *ngFor="let item of list" #slidingItem>
-      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{nbNotCompleted(item.uuid)}} items not finished !</ion-item>
+      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{item.nbNotFinished}} items not finished !</ion-item>
       <ion-item-options side="end">
         <button ion-button color="primary" (click)="delete(item, slidingItem)">
           <ion-icon name="text"></ion-icon>

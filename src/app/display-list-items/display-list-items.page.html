@@ -4,7 +4,7 @@
   </ion-card-header>
   <ion-card-content>
     <ion-list no-lines>
-      <ion-item-sliding *ngFor="let item of list.items" #slidingItem>
+      <ion-item-sliding *ngFor="let item of items" #slidingItem>
         <ion-item>{{item.name}} {{item.desc}} <ion-checkbox color="dark" [(ngModel)]="item.complete"></ion-checkbox>
         </ion-item>
         <ion-item-options side="end">

@@ -25,6 +25,10 @@ export class TodoServiceProvider {
     });
   }
 
+  public getTodos(listUuid: string): Observable<TodoItem[]> {
+    return this.itemsCollection.doc(listUuid).collection<TodoItem>('todoitems').valueChanges().map(vendors => vendors);
+  }
+
   public getList(): Observable<TodoList[]> {
     return this.items;
   }
@@ -39,34 +43,30 @@ export class TodoServiceProvider {
   }
 
   public addList(listName: string) {
-    const newList: TodoList = { uuid: this.afs.createId(),name: listName, items: [] };
+    const newList: TodoList = { uuid: this.afs.createId(),name: listName,nbNotFinished: 0, items: [] };
     this.itemsCollection.doc(newList.uuid).set(newList);
   }
 
-  public addTodo(listUuid: string, itemName: string, itemDescription: string) {
+  public addTodo(list: TodoList, itemName: string, itemDescription: string) {
     const newTodo: TodoItem = { uuid: this.afs.createId(), name: itemName, desc: itemDescription, complete: false };
-    this.itemsCollection.doc(listUuid).update({
-      items: firebase.firestore.FieldValue.arrayUnion(newTodo)
+    this.itemsCollection.doc(list.uuid).update({
+      nbNotFinished: list.nbNotFinished+1
     });
+    this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
   }
 
-  public editTodo(listUuid: string, oldItem: TodoItem, editedItem: TodoItem) {
-    editedItem.uuid = this.afs.createId();
-    this.itemsCollection.doc(listUuid).update({
-      items: firebase.firestore.FieldValue.arrayRemove(oldItem)
-    });
-    this.itemsCollection.doc(listUuid).update({
-      items: firebase.firestore.FieldValue.arrayUnion(editedItem)
-    });
+  public editTodo(listUuid: string, editedItem: TodoItem) {
+    this.itemsCollection.doc(listUuid).collection('todoitems').doc(editedItem.uuid).set(editedItem);
   }
 
   public editListName(listUuid: string, name: string) {
     this.itemsCollection.doc(listUuid).update({ name: name });
   }
 
-  public deleteTodo(listUuid: string, oldTodo: TodoItem) {
-    this.itemsCollection.doc(listUuid).update({
-      items: firebase.firestore.FieldValue.arrayRemove(oldTodo)
+  public deleteTodo(list: TodoList, oldTodo: TodoItem) {
+    this.itemsCollection.doc(list.uuid).update({
+      nbNotFinished: list.nbNotFinished-1
     });
+    this.itemsCollection.doc(list.uuid).collection('todoitems').doc(oldTodo.uuid).delete();
   }
 } 

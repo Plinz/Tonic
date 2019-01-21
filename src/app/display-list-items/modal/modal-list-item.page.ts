@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TodoServiceProvider } from 'src/app/service/todo-service/todo-service.service';
 import { ModalController, NavParams } from '@ionic/angular';
-import { TodoItem } from 'src/app/domain/todo';
+import { TodoItem, TodoList } from 'src/app/domain/todo';
 
 @Component({
     templateUrl: './modal-list-item.html',
@@ -10,7 +10,7 @@ import { TodoItem } from 'src/app/domain/todo';
 })
 export class ModalListItemComponent {
 
-    listUuid: string;
+    list: TodoList;
     itemName: string;
     itemDescription: string;
     mode: string;
@@ -21,7 +21,7 @@ export class ModalListItemComponent {
         private navParams: NavParams) { }
 
     ionViewWillEnter() {
-        this.listUuid = this.navParams.get('listUuid');
+        this.list = this.navParams.get('list');
         this.itemName = this.navParams.get('itemName');
         this.itemDescription = this.navParams.get('itemDescription');
         this.mode = this.navParams.get('mode');
@@ -30,10 +30,11 @@ export class ModalListItemComponent {
 
     add() {
         if(this.mode === 'add'){
-            this.todoServiceProvider.addTodo(this.listUuid,this.itemName,this.itemDescription);
+            this.todoServiceProvider.addTodo(this.list,this.itemName,this.itemDescription);
         } else {
-            const newTodo: TodoItem = {name: this.itemName, desc: this.itemDescription, complete: false };
-            this.todoServiceProvider.editTodo(this.listUuid,this.itemToEdit, newTodo);
+            this.itemToEdit.name = this.itemName;
+            this.itemToEdit.desc = this.itemDescription;
+            this.todoServiceProvider.editTodo(this.list.uuid,this.itemToEdit);
         }
         this.modalController.dismiss();
     }

@@ -14,6 +14,7 @@ export class DisplayListItemsPage implements OnInit {
 
   list: TodoList;
   uuid: string;
+  items: TodoItem[];
 
   constructor(private todoServiceProvider: TodoServiceProvider,
     private route: ActivatedRoute,
@@ -23,6 +24,7 @@ export class DisplayListItemsPage implements OnInit {
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
     this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
+    this.todoServiceProvider.getTodos(this.uuid).subscribe(res => { this.items = res});
   }
 
   async deleteConfirm(todo: TodoItem) {
@@ -39,7 +41,7 @@ export class DisplayListItemsPage implements OnInit {
         }, {
           text: 'Delete',
           handler: () => {
-            this.todoServiceProvider.deleteTodo(this.uuid, todo);
+            this.todoServiceProvider.deleteTodo(this.list, todo);
           }
         }
       ]
@@ -52,7 +54,7 @@ export class DisplayListItemsPage implements OnInit {
        await this.modalController.create({
           component: ModalListItemComponent,
           componentProps: {
-            listUuid: this.uuid,
+            list: this.list,
             itemName: '',
             itemDescription: '',
             mode: 'add'
@@ -67,7 +69,7 @@ async edit(itemChosen: TodoItem,slidingItem: IonItemSliding) {
      await this.modalController.create({
         component: ModalListItemComponent,
         componentProps: {
-          listUuid: this.uuid,
+          list: this.list,
           itemName: itemChosen.name,
           itemDescription: itemChosen.desc,
           mode: 'edit',
