@@ -32,9 +32,8 @@ export class ModalListItemComponent {
         if(this.mode === 'add'){
             this.todoServiceProvider.addTodo(this.listUuid,this.itemName,this.itemDescription);
         } else {
-            this.itemToEdit.name = this.itemName;
-            this.itemToEdit.desc = this.itemDescription;
-            this.todoServiceProvider.editTodo(this.listUuid,this.itemToEdit);
+            const newTodo: TodoItem = {name: this.itemName, desc: this.itemDescription, complete: false };
+            this.todoServiceProvider.editTodo(this.listUuid,this.itemToEdit, newTodo);
         }
         this.modalController.dismiss();
     }

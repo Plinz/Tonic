@@ -25,7 +25,7 @@ export class DisplayListItemsPage implements OnInit {
     this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
   }
 
-  async deleteConfirm(itemId: string) {
+  async deleteConfirm(todo: TodoItem) {
     const alert = await this.alertCtrl.create({
       header: 'Confirm!',
       message: 'Do you want to delete this item?',
@@ -39,7 +39,7 @@ export class DisplayListItemsPage implements OnInit {
         }, {
           text: 'Delete',
           handler: () => {
-            this.todoServiceProvider.deleteTodo(this.uuid, itemId);
+            this.todoServiceProvider.deleteTodo(this.uuid, todo);
           }
         }
       ]
@@ -61,7 +61,8 @@ export class DisplayListItemsPage implements OnInit {
     await modal.present();
 }
 
-async edit(itemChosen: TodoItem) {
+async edit(itemChosen: TodoItem,slidingItem: IonItemSliding) {
+  await slidingItem.close();
   const modal: HTMLIonModalElement =
      await this.modalController.create({
         component: ModalListItemComponent,
@@ -78,6 +79,6 @@ async edit(itemChosen: TodoItem) {
 
   async delete(item: TodoItem,slidingItem: IonItemSliding) {
     await slidingItem.close();
-    this.deleteConfirm(item.uuid);
+    this.deleteConfirm(item);
   }
 }
