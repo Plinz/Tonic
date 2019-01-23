@@ -1,71 +1,107 @@
 import { Injectable } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
-import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { Router } from '@angular/router';
-import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Platform } from '@ionic/angular';
-import {Observable} from "rxjs/Observable";
-import * as firebase from 'firebase/app';
+import { Observable } from "rxjs/Observable";
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { of } from 'rxjs';
+import { auth } from 'firebase/app';
+import { ToastController, Platform } from '@ionic/angular';
+import { FcmService } from '../fcm-service/fcm.service';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GoogleAuthService {
 
-    user: Observable<firebase.User>;
+    user: Observable<User>;
 
-    constructor(private loadingController: LoadingController,
-        private nativeStorage: NativeStorage,
-        private router: Router,
-        private gplus: GooglePlus,
+    constructor(
         private afAuth: AngularFireAuth,
-        private platform: Platform) {
-        this.user = this.afAuth.authState;
-
+        private afs: AngularFirestore,
+        private router: Router,
+        private toastController: ToastController,
+        private fcm: FcmService,
+        private platform: Platform,
+        private gplus: GooglePlus) {
+        this.afAuth.authState.subscribe(
+            user => {
+                if (user) {
+                    this.user = this.afs.doc<User>(`users/${user.uid}`).valueChanges()
+                } else {
+                    this.user = of(null)
+                }
+            }
+        )
     }
 
-    getUser () : Observable<firebase.User> {
-        return this.user;
+    private async presentToast(message) {
+        const toast = await this.toastController.create({
+            message,
+            duration: 3000
+        });
+        toast.present();
     }
 
-    async nativeGoogleLogin(): Promise<any> {
-        try {
+    private notificationSetup(uid) {
+        this.fcm.getToken(uid);
+        this.fcm.onNotifications().subscribe(
+            (msg) => {
+                if (this.platform.is('ios')) {
+                    this.presentToast(msg.aps.alert);
+                } else if (this.platform.is('android')) {
+                    this.presentToast(msg.body);
+                }
+            });
+    }
 
+    googleLogin() {
+        const provider = new auth.GoogleAuthProvider()
+        return this.oAuthLogin(provider);
+    }
+
+    private async oAuthLogin(provider) {
+        if (this.platform.is('cordova')) {
             const gplusUser = await this.gplus.login({
                 'webClientId': '1036845890573-j59mac31rt2ubbc96pfrbrv0gekju6er.apps.googleusercontent.com',
                 'offline': true,
                 'scopes': 'profile email'
             })
-            let p = await this.afAuth.auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(gplusUser.idToken))
-            this.router.navigate(["/tabs"]);
-            return p;
-
-        } catch (err) {
-            console.log(err)
+            return await this.afAuth.auth.signInWithCredential(provider.credential(gplusUser.idToken)).then((credential) => {
+                this.updateUserData(credential);
+            });
+        }
+        else {
+            return this.afAuth.auth.signInWithPopup(provider)
+                .then((credential) => {
+                    this.updateUserData(credential.user)
+                });
         }
     }
 
-    async webGoogleLogin(): Promise<void> {
-        try {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            const credential = await this.afAuth.auth.signInWithPopup(provider);
-            this.router.navigate(["/tabs"]);
-        } catch (err) {
-            console.log(err)
+    private updateUserData(user) {
+        // Sets user data to firestore on login
+
+        const userRef: AngularFirestoreDocument<any> = this.afs.doc('users/'+user.uid);
+
+        const data: User = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL
         }
+
+        userRef.set(data, { merge: true });
+        this.notificationSetup(data.uid);
+        this.router.navigate(["/tabs"]);
+
     }
 
-    googleLogin() {
-        if (this.platform.is('cordova')) {
-            this.nativeGoogleLogin();
-        } else {
-            this.webGoogleLogin();
-        }
-    }
 
     signOut() {
-        this.afAuth.auth.signOut();
+        this.afAuth.auth.signOut().then(() => {
+            this.router.navigate(['']);
+        });
     }
 
 }

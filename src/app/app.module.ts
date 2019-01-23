@@ -8,12 +8,14 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NativeStorage } from '@ionic-native/native-storage/ngx';
-import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AuthGuard } from './service/guard/auth.guard';
+import { Firebase } from '@ionic-native/firebase/ngx';
+import { FcmService } from './service/fcm-service/fcm.service';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 const firebase = {
   apiKey: "AIzaSyChQEXVRCoovLUSEJWSVdugP6N_Soq74ps",
@@ -35,7 +37,9 @@ const firebase = {
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    NativeStorage,
+    AuthGuard,
+    Firebase,
+    FcmService,
     GooglePlus
   ],
   bootstrap: [AppComponent]
