@@ -5,7 +5,7 @@ import { Observable } from "rxjs/Observable";
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { of } from 'rxjs';
 import { auth } from 'firebase/app';
-import { ToastController, Platform } from '@ionic/angular';
+import { ToastController, Platform, NavController } from '@ionic/angular';
 import { FcmService } from '../fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
@@ -19,7 +19,7 @@ export class GoogleAuthService {
     constructor(
         private afAuth: AngularFireAuth,
         private afs: AngularFirestore,
-        private router: Router,
+        private router: NavController,
         private toastController: ToastController,
         private fcm: FcmService,
         private platform: Platform,
@@ -93,14 +93,14 @@ export class GoogleAuthService {
 
         userRef.set(data, { merge: true });
         this.notificationSetup(data.uid);
-        this.router.navigate(["/tabs"]);
+        this.router.navigateForward("/tabs");
 
     }
 
 
     signOut() {
         this.afAuth.auth.signOut().then(() => {
-            this.router.navigate(['']);
+            this.router.navigateRoot('');
         });
     }
 

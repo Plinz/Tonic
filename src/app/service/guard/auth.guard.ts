@@ -2,25 +2,19 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 
 import { GoogleAuthService } from './../google-auth-service/google-auth-service';
-import { Observable } from 'rxjs';
-import { tap, map, take } from 'rxjs/operators';
+import { NavController } from '@ionic/angular';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private auth: GoogleAuthService, private router: Router) { }
+  constructor(private auth: GoogleAuthService, private router: NavController) { }
 
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean> {
-
-    return this.auth.user.pipe(
-      take(1),
-      map(user => !!user),
-      tap(loggedIn => {
-        if (!loggedIn) {
-          this.router.navigate(['']);
-        }
-      })
-    )
+    state: RouterStateSnapshot): boolean {
+    if(!this.auth.user) {
+      this.router.navigateRoot('');
+      return false;
+    }
+    return true;
   }
 }

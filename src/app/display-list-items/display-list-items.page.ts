@@ -63,6 +63,10 @@ export class DisplayListItemsPage implements OnInit {
     await modal.present();
 }
 
+changeCheck(item) {
+  this.todoServiceProvider.changeCheck(this.list,item);
+}
+
 async edit(itemChosen: TodoItem,slidingItem: IonItemSliding) {
   await slidingItem.close();
   const modal: HTMLIonModalElement =

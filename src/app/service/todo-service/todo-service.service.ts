@@ -35,7 +35,7 @@ export class TodoServiceProvider {
 
   public getUniqueList(uuid: string): Observable<TodoList> {
     return this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', uuid).limit(1))
-    .valueChanges().map(vendors => vendors[0]);
+      .valueChanges().map(vendors => vendors[0]);
   }
 
   public deleteList(listId: string) {
@@ -43,16 +43,29 @@ export class TodoServiceProvider {
   }
 
   public addList(listName: string) {
-    const newList: TodoList = { uuid: this.afs.createId(),name: listName,nbNotFinished: 0, items: [] };
+    const newList: TodoList = { uuid: this.afs.createId(), name: listName, nbNotFinished: 0, items: [] };
     this.itemsCollection.doc(newList.uuid).set(newList);
   }
 
   public addTodo(list: TodoList, itemName: string, itemDescription: string) {
     const newTodo: TodoItem = { uuid: this.afs.createId(), name: itemName, desc: itemDescription, complete: false };
     this.itemsCollection.doc(list.uuid).update({
-      nbNotFinished: list.nbNotFinished+1
+      nbNotFinished: list.nbNotFinished + 1
     });
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
+  }
+
+  public changeCheck(list: TodoList, editedItem: TodoItem) {
+    if (editedItem.complete === true) {
+      this.itemsCollection.doc(list.uuid).update({
+        nbNotFinished: list.nbNotFinished - 1
+      });
+    } else {
+      this.itemsCollection.doc(list.uuid).update({
+        nbNotFinished: list.nbNotFinished + 1
+      });
+    }
+    this.itemsCollection.doc(list.uuid).collection('todoitems').doc(editedItem.uuid).set(editedItem);
   }
 
   public editTodo(listUuid: string, editedItem: TodoItem) {
@@ -65,7 +78,7 @@ export class TodoServiceProvider {
 
   public deleteTodo(list: TodoList, oldTodo: TodoItem) {
     this.itemsCollection.doc(list.uuid).update({
-      nbNotFinished: list.nbNotFinished-1
+      nbNotFinished: list.nbNotFinished - 1
     });
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(oldTodo.uuid).delete();
   }
