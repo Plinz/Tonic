@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { of } from 'rxjs';
 import { auth } from 'firebase/app';
 import { ToastController, Platform, NavController } from '@ionic/angular';
 import { FcmService } from '../fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
+import { User } from 'src/app/domain/user';
+import {share} from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GoogleAuthService {
 
-    user: Observable<User>;
+    user: Observable<firebase.User>;
 
     constructor(
         private afAuth: AngularFireAuth,
@@ -27,13 +28,15 @@ export class GoogleAuthService {
         this.afAuth.authState.subscribe(
             user => {
                 if (user) {
-                    this.user = this.afs.doc<User>(`users/${user.uid}`).valueChanges()
+                    this.user = this.afAuth.user;
                 } else {
-                    this.user = of(null)
+                    this.user = of(null).pipe(share());
                 }
             }
-        )
+        );
     }
+
+
 
     private async presentToast(message) {
         const toast = await this.toastController.create({
@@ -82,7 +85,7 @@ export class GoogleAuthService {
     private updateUserData(user) {
         // Sets user data to firestore on login
 
-        const userRef: AngularFirestoreDocument<any> = this.afs.doc('users/'+user.uid);
+        const userRef: AngularFirestoreDocument<any> = this.afs.doc('users/' + user.uid);
 
         const data: User = {
             uid: user.uid,

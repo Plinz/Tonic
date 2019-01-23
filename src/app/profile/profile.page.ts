@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
-import { NavController } from '@ionic/angular';
+import { User } from '../domain/user';
 
 @Component({
   selector: 'app-profile',
@@ -9,15 +9,15 @@ import { NavController } from '@ionic/angular';
 })
 export class ProfilePage implements OnInit {
 
-  user: User;
-  constructor(private authService: GoogleAuthService, private router: NavController) { }
+  user: firebase.User;
+  constructor(private gAuth: GoogleAuthService) {
+  }
 
   ngOnInit() {
-    this.authService.user.subscribe((user) => this.user = user);
+     this.gAuth.user.subscribe(res => { this.user = res;});
   }
 
-  logOut(){
-    this.authService.signOut();
+  logOut() {
+    this.gAuth.signOut();
   }
-
 }

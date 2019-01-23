@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TodoServiceProvider } from '../service/todo-service/todo-service.service';
 import { TodoItem, TodoList } from '../domain/todo';
-import { AlertController, IonItemSliding } from '@ionic/angular';
+import { AlertController, IonItemSliding, NavController } from '@ionic/angular';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 
 @Component({
@@ -12,15 +12,20 @@ import { GoogleAuthService } from '../service/google-auth-service/google-auth-se
 export class ListDisplayPage implements OnInit {
 
   list: TodoList[];
-  user: User;
+  user: firebase.User;
 
   constructor(private todoServiceProvider: TodoServiceProvider,
     private alertCtrl: AlertController,
-    private gAuth: GoogleAuthService) { }
+    private gAuth: GoogleAuthService,
+    private router: NavController) { }
 
   ngOnInit() {
     this.todoServiceProvider.getList().subscribe(res => { this.list = res; });
     this.gAuth.user.subscribe(res => { this.user = res; });
+  }
+
+  seeProfile() {
+    this.router.navigateForward('/profile');
   }
 
   nbNotCompleted(uuid: String): number {
@@ -77,7 +82,7 @@ export class ListDisplayPage implements OnInit {
         }, {
           text: 'Ok',
           handler: (data) => {
-            this.todoServiceProvider.editListName(item.uuid,data.name);
+            this.todoServiceProvider.editListName(item.uuid, data.name);
           }
         }
       ]

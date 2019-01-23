@@ -1,7 +1,7 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Tab List
+  <ion-toolbar (click)="seeProfile()">
+    <ion-title *ngIf="user">
+      Tab List {{user.displayName}}
     </ion-title>
   </ion-toolbar>
 </ion-header>

@@ -39,6 +39,7 @@ export class TodoServiceProvider {
   }
 
   public deleteList(listId: string) {
+    this.itemsCollection.doc(listId).collection('todoitems')
     this.itemsCollection.doc(listId).delete();
   }
 
@@ -77,9 +78,11 @@ export class TodoServiceProvider {
   }
 
   public deleteTodo(list: TodoList, oldTodo: TodoItem) {
-    this.itemsCollection.doc(list.uuid).update({
-      nbNotFinished: list.nbNotFinished - 1
-    });
+    if (!oldTodo.complete) {
+      this.itemsCollection.doc(list.uuid).update({
+        nbNotFinished: list.nbNotFinished - 1
+      });
+    }
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(oldTodo.uuid).delete();
   }
 } 
