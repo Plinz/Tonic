@@ -8,6 +8,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AdMobPro } from '@ionic-native/admob-pro/ngx';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
@@ -47,7 +48,8 @@ const firebase = {
     Firebase,
     FcmService,
     GooglePlus,
-    GoogleAuthService
+    GoogleAuthService,
+    AdMobPro
   ],
   bootstrap: [AppComponent]
 })

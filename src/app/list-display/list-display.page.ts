@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TodoServiceProvider } from '../service/todo-service/todo-service.service';
-import { TodoItem, TodoList } from '../domain/todo';
-import { AlertController, IonItemSliding, NavController } from '@ionic/angular';
+import { TodoList } from '../domain/todo';
+import { AlertController, IonItemSliding, NavController, Platform } from '@ionic/angular';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 
 @Component({

@@ -1,6 +1,5 @@
 import { Component, OnInit} from '@angular/core';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
-import { User } from '../domain/user';
 
 @Component({
   selector: 'app-profile',
