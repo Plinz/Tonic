@@ -3,15 +3,15 @@ import { Platform, ToastController } from '@ionic/angular';
 import { AngularFireMessaging } from '@angular/fire/messaging';
 import { tap } from 'rxjs/operators';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { TodoList } from 'src/app/domain/todo';
-import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { Firebase } from '@ionic-native/firebase/ngx';
 
 @Injectable()
 export class FcmService {
 
     token;
-    constructor(private afMessaging: AngularFireMessaging,
+    constructor(private fs: Firebase,
+        private afMessaging: AngularFireMessaging,
         private toastController: ToastController,
         private fun: AngularFireFunctions,
         private afs: AngularFirestore) {
@@ -21,25 +21,18 @@ export class FcmService {
         })
     }
 
-    requestPermission(uid) {
-        this.afMessaging.requestToken
-            .subscribe(
-                (token) => {
-                    this.token = token;
-                    const devicesRef = this.afs.collection('devices');
-
-                    const data = {
-                        token,
-                        userId: uid
-                    };
-                    return devicesRef.doc(token).set(data);
-                },
-                (error) => { console.error(error); },
-            );
+    async requestPermission(uid) {
+        this.token = await this.fs.getToken();
+        const devicesRef = this.afs.collection('devices');
+        const data = {
+            token: this.token,
+            userId: uid
+        };
+        devicesRef.doc(this.token).set(data);
+        this.sub();
     }
 
     async makeToast(message) {
-        console.log(message);
         const toast = await this.toastController.create({
             message,
             duration: 5000,
@@ -50,17 +43,17 @@ export class FcmService {
         toast.present();
     }
 
-    showMessages()  {
-        this.afMessaging.messages.subscribe((payload) => {
+    showMessages() {
+        this.afMessaging.messages.subscribe((payload: any) => {
             console.log("new message received. ", payload);
-            this.makeToast(payload);
+            this.makeToast(payload.notification.title);
         })
     }
 
-    createList(list: TodoList) {
+    sub() {
         this.fun
-            .httpsCallable('createList')({ list, token: this.token })
-            .pipe(tap(_ => this.makeToast('Make list ' + list.name)))
+            .httpsCallable('createList')({ topic: 'todolists', token: this.token })
+            .pipe(tap(_ => console.log('')))
             .subscribe();
     }
 }
