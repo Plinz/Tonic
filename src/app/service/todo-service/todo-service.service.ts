@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import { TodoItem, TodoList } from "./../../domain/todo";
 import { Observable } from "rxjs/Observable";
-import { of } from 'rxjs';
 import 'rxjs/Rx';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
+import { GoogleAuthService } from '../google-auth-service/google-auth-service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +12,10 @@ import * as firebase from 'firebase/app';
 export class TodoServiceProvider {
   itemsCollection: AngularFirestoreCollection<TodoList>;
   items: Observable<TodoList[]>;
+  user: firebase.User;
 
-  constructor(private afs: AngularFirestore) {
+  constructor(private afs: AngularFirestore,
+    private gAuth: GoogleAuthService) {
     this.itemsCollection = afs.collection<TodoList>('todolists');
     this.items = this.itemsCollection.snapshotChanges().map(actions => {
       return actions.map(action => {
@@ -23,6 +24,19 @@ export class TodoServiceProvider {
         return { id, ...data };
       });
     });
+    this.gAuth.user.subscribe((res) => this.user = res);
+  }
+
+  public getMyLists(): Observable<TodoList[]> {
+    //const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('shared', '==', true).where('uuid','<',this.user.uid).where('uuid','>',this.user.uid));
+    const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('owner', '==', this.user.uid));
+    return lists.valueChanges().map(vendors => vendors);
+  }
+
+  public getSharedLists(): Observable<TodoList[]> {
+    //const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('shared', '==', true).where('uuid','<',this.user.uid).where('uuid','>',this.user.uid));
+    const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('shared', '==', true));
+    return lists.valueChanges().map(vendors => vendors);
   }
 
   public getTodos(listUuid: string): Observable<TodoItem[]> {
@@ -39,12 +53,16 @@ export class TodoServiceProvider {
   }
 
   public deleteList(listId: string) {
-    this.itemsCollection.doc(listId).collection('todoitems')
+    this.itemsCollection.doc(listId).collection('todoitems').valueChanges().subscribe(res => {
+      res.map((item: TodoItem) => {
+        this.itemsCollection.doc(listId).collection('todoitems').doc(item.uuid).delete();
+      })
+    });
     this.itemsCollection.doc(listId).delete();
   }
 
   public addList(listName: string) {
-    const newList: TodoList = { uuid: this.afs.createId(), name: listName, nbNotFinished: 0, items: [] };
+    const newList: TodoList = { uuid: this.afs.createId(), name: listName, nbNotFinished: 0, shared: false, owner: this.user.uid, items: [] };
     this.itemsCollection.doc(newList.uuid).set(newList);
   }
 
@@ -54,6 +72,12 @@ export class TodoServiceProvider {
       nbNotFinished: list.nbNotFinished + 1
     });
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
+  }
+
+  public changeSharedStatus(listUuid: string, value: boolean){
+    this.itemsCollection.doc(listUuid).update({
+      shared: value
+    });
   }
 
   public changeCheck(list: TodoList, editedItem: TodoItem) {

@@ -17,7 +17,8 @@ import { Firebase } from '@ionic-native/firebase/ngx';
 import { FcmService } from './service/fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { GoogleAuthService } from './service/google-auth-service/google-auth-service';
-import { TodoServiceProvider } from './service/todo-service/todo-service.service';
+import { AngularFireMessagingModule } from '@angular/fire/messaging';
+import { AngularFireFunctionsModule } from '@angular/fire/functions';
 
 const firebase = {
   apiKey: "AIzaSyChQEXVRCoovLUSEJWSVdugP6N_Soq74ps",
@@ -34,7 +35,9 @@ const firebase = {
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule,
     AngularFireModule.initializeApp(firebase), // <-- firebase here
     AngularFireAuthModule,
-    AngularFirestoreModule
+    AngularFirestoreModule,
+    AngularFireMessagingModule,
+    AngularFireFunctionsModule
     ],
   providers: [
     StatusBar,

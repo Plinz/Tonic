@@ -2,12 +2,16 @@
   <ion-card *ngIf="list">
     <ion-card-header>
       {{list.name}}
+      <ion-item>
+        <ion-checkbox (click)="changeShared()" [disabled]="list.owner != user.uid" color="success" [(ngModel)]="list.shared"></ion-checkbox>
+        <ion-label padding-start>Shared</ion-label>
+      </ion-item>
     </ion-card-header>
     <ion-card-content>
       <ion-list no-lines>
         <ion-item-sliding *ngFor="let item of items" #slidingItem>
           <ion-item>
-            <ion-checkbox (click)="changeCheck(item)" color="success" [(ngModel)]="item.complete" ></ion-checkbox>
+            <ion-checkbox (click)="changeCheck(item)" color="success" [(ngModel)]="item.complete"></ion-checkbox>
             <ion-label padding-start>{{item.name}} {{item.desc}}</ion-label>
           </ion-item>
 
@@ -28,6 +32,8 @@
     </ion-card-content>
   </ion-card>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="add()"><ion-icon name="add"></ion-icon></ion-fab-button>
+    <ion-fab-button (click)="add()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
 </ion-content>

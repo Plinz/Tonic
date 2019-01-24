@@ -38,21 +38,30 @@ const routes: Routes = [
       {
         path: 'list-display',
         children: [
-            {
-                path: '',
-                loadChildren: '../list-display/list-display.module#ListDisplayPageModule'
-            }
-          ]
-        },
-        {
-          path: 'display-list-items',
-          children: [
-              {
-                  path: ':id',
-                  loadChildren: '../display-list-items/display-list-items.module#DisplayListItemsPageModule'
-              }
-            ]
-          },
+          {
+            path: '',
+            loadChildren: '../list-display/list-display.module#ListDisplayPageModule'
+          }
+        ]
+      },
+      {
+        path: 'display-list-items',
+        children: [
+          {
+            path: ':id',
+            loadChildren: '../display-list-items/display-list-items.module#DisplayListItemsPageModule'
+          }
+        ]
+      },
+      {
+        path: 'display-shared-lists',
+        children: [
+          {
+            path: '',
+            loadChildren: '../shared-list-page/shared-list-page.module#SharedListPagePageModule'
+          }
+        ]
+      },
       {
         path: '',
         redirectTo: '/tabs/tab1',
@@ -71,4 +80,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class TabsPageRoutingModule {}
+export class TabsPageRoutingModule { }

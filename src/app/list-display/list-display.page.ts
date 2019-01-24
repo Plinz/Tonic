@@ -20,7 +20,7 @@ export class ListDisplayPage implements OnInit {
     private router: NavController) { }
 
   ngOnInit() {
-    this.todoServiceProvider.getList().subscribe(res => { this.list = res; });
+    this.todoServiceProvider.getMyLists().subscribe(res => { this.list = res; });
     this.gAuth.user.subscribe(res => { this.user = res; });
   }
 

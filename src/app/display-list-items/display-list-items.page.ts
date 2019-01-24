@@ -4,6 +4,7 @@ import { TodoItem, TodoList } from "../domain/todo";
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, ModalController, IonItemSliding } from '@ionic/angular';
 import { ModalListItemComponent } from './modal/modal-list-item.page';
+import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 
 @Component({
   selector: 'app-display-list-items',
@@ -15,16 +16,20 @@ export class DisplayListItemsPage implements OnInit {
   list: TodoList;
   uuid: string;
   items: TodoItem[];
+  user: firebase.User;
+
 
   constructor(private todoServiceProvider: TodoServiceProvider,
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
-    public modalController: ModalController) { }
+    private modalController: ModalController,
+    private gAuth: GoogleAuthService) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
     this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
     this.todoServiceProvider.getTodos(this.uuid).subscribe(res => { this.items = res});
+    this.gAuth.user.subscribe((res) => this.user = res);
   }
 
   async deleteConfirm(todo: TodoItem) {
@@ -65,6 +70,10 @@ export class DisplayListItemsPage implements OnInit {
 
 changeCheck(item) {
   this.todoServiceProvider.changeCheck(this.list,item);
+}
+
+changeShared(){
+  this.todoServiceProvider.changeSharedStatus(this.list.uuid,this.list.shared);
 }
 
 async edit(itemChosen: TodoItem,slidingItem: IonItemSliding) {

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar (click)="seeProfile()">
     <ion-title *ngIf="user">
-      Tab List {{user.displayName}}
+      {{user.displayName}}'s lists
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,11 +9,9 @@
 
 <ion-content padding fulscreen>
   <ion-list no-lines>
-    <ion-list-header>
-      <ion-label>Lists</ion-label>
-    </ion-list-header>
     <ion-item-sliding *ngFor="let item of list" #slidingItem>
-      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{item.nbNotFinished}} items not finished !</ion-item>
+      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{item.nbNotFinished}} items not
+        finished !</ion-item>
       <ion-item-options side="end">
         <button ion-button color="primary" (click)="delete(item, slidingItem)">
           <ion-icon name="text"></ion-icon>
@@ -29,6 +27,8 @@
     </ion-item-sliding>
   </ion-list>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="add()"><ion-icon name="add"></ion-icon></ion-fab-button>
+    <ion-fab-button (click)="add()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
 </ion-content>

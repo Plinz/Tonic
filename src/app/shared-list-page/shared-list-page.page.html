@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Shared lists
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content padding fulscreen>
+  <ion-list no-lines>
+    <ion-item-sliding *ngFor="let item of lists" #slidingItem>
+      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{item.nbNotFinished}} items not
+        finished !</ion-item>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

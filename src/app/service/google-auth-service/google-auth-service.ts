@@ -36,28 +36,6 @@ export class GoogleAuthService {
         );
     }
 
-
-
-    private async presentToast(message) {
-        const toast = await this.toastController.create({
-            message,
-            duration: 3000
-        });
-        toast.present();
-    }
-
-    private notificationSetup(uid) {
-        this.fcm.getToken(uid);
-        this.fcm.onNotifications().subscribe(
-            (msg) => {
-                if (this.platform.is('ios')) {
-                    this.presentToast(msg.aps.alert);
-                } else if (this.platform.is('android')) {
-                    this.presentToast(msg.body);
-                }
-            });
-    }
-
     googleLogin() {
         const provider = new auth.GoogleAuthProvider()
         return this.oAuthLogin(provider);
@@ -95,7 +73,7 @@ export class GoogleAuthService {
         }
 
         userRef.set(data, { merge: true });
-        this.notificationSetup(data.uid);
+        this.fcm.requestPermission(user.uid);
         this.router.navigateForward("/tabs");
 
     }
