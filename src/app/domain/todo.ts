@@ -5,6 +5,7 @@ export interface TodoList {
   shared: boolean,
   owner: string;
   items : TodoItem[]
+  subscribers: string[]
 }
 
 export interface TodoItem {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Platform, ToastController } from '@ionic/angular';
+import { ToastController, Platform } from '@ionic/angular';
 import { AngularFireMessaging } from '@angular/fire/messaging';
 import { tap } from 'rxjs/operators';
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -14,22 +14,39 @@ export class FcmService {
         private afMessaging: AngularFireMessaging,
         private toastController: ToastController,
         private fun: AngularFireFunctions,
-        private afs: AngularFirestore) {
+        private afs: AngularFirestore,
+        private platform: Platform) {
         this.afMessaging.messaging.subscribe((_messaging) => {
             _messaging.onMessage = _messaging.onMessage.bind(_messaging);
             _messaging.onTokenRefresh = _messaging.onTokenRefresh.bind(_messaging);
         })
     }
 
-    async requestPermission(uid) {
-        this.token = await this.fs.getToken();
+    public saveToken(uid) {
         const devicesRef = this.afs.collection('devices');
         const data = {
             token: this.token,
             userId: uid
         };
         devicesRef.doc(this.token).set(data);
-        this.sub();
+        this.sub('todolists');
+
+    }
+
+    async requestPermission(uid) {
+        if (this.platform.is('cordova')) {
+            this.token = await this.fs.getToken();
+            this.saveToken(uid);
+        }
+        else {
+            this.afMessaging.requestToken.subscribe(
+                (token) => {
+                    this.token = token;
+                    this.saveToken(uid);
+                },
+                (error) => { console.error(error); },
+            );
+        }
     }
 
     async makeToast(message) {
@@ -45,15 +62,22 @@ export class FcmService {
 
     showMessages() {
         this.afMessaging.messages.subscribe((payload: any) => {
-            console.log("new message received. ", payload);
             this.makeToast(payload.notification.title);
         })
     }
 
-    sub() {
+    sub(topic) {
         this.fun
-            .httpsCallable('createList')({ topic: 'todolists', token: this.token })
-            .pipe(tap(_ => console.log('')))
+            .httpsCallable('subscribe')({ topic, token: this.token })
+            .pipe(tap(_ => this.makeToast(_)))
+            .subscribe();
+    }
+
+
+    unsub(topic) {
+        this.fun
+            .httpsCallable('unsubscribe')({ topic, token: this.token })
+            .pipe(tap(_ => this.makeToast(_)))
             .subscribe();
     }
 }

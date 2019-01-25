@@ -28,7 +28,7 @@ export class DisplayListItemsPage implements OnInit {
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
     this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
-    this.todoServiceProvider.getTodos(this.uuid).subscribe(res => { this.items = res});
+    this.todoServiceProvider.getTodos(this.uuid).subscribe(res => { this.items = res });
     this.gAuth.user.subscribe((res) => this.user = res);
   }
 
@@ -56,30 +56,38 @@ export class DisplayListItemsPage implements OnInit {
 
   async add() {
     const modal: HTMLIonModalElement =
-       await this.modalController.create({
-          component: ModalListItemComponent,
-          componentProps: {
-            list: this.list,
-            itemName: '',
-            itemDescription: '',
-            mode: 'add'
-          }
-    });
+      await this.modalController.create({
+        component: ModalListItemComponent,
+        componentProps: {
+          list: this.list,
+          itemName: '',
+          itemDescription: '',
+          mode: 'add'
+        }
+      });
     await modal.present();
-}
+  }
 
-changeCheck(item) {
-  this.todoServiceProvider.changeCheck(this.list,item);
-}
+  changeCheck(item) {
+    this.todoServiceProvider.changeCheck(this.list, item);
+  }
 
-changeShared(){
-  this.todoServiceProvider.changeSharedStatus(this.list.uuid,this.list.shared);
-}
+  subscribeToList() {
+    this.todoServiceProvider.subscribeToList(this.list);
+  }
 
-async edit(itemChosen: TodoItem,slidingItem: IonItemSliding) {
-  await slidingItem.close();
-  const modal: HTMLIonModalElement =
-     await this.modalController.create({
+  unsubscribeFromList() {
+    this.todoServiceProvider.unsubscribeFromList(this.list);
+  }
+
+  changeShared() {
+    this.todoServiceProvider.changeSharedStatus(this.list.uuid, this.list.shared);
+  }
+
+  async edit(itemChosen: TodoItem, slidingItem: IonItemSliding) {
+    await slidingItem.close();
+    const modal: HTMLIonModalElement =
+      await this.modalController.create({
         component: ModalListItemComponent,
         componentProps: {
           list: this.list,
@@ -88,11 +96,11 @@ async edit(itemChosen: TodoItem,slidingItem: IonItemSliding) {
           mode: 'edit',
           item: itemChosen
         }
-  });
-  await modal.present();
-}
+      });
+    await modal.present();
+  }
 
-  async delete(item: TodoItem,slidingItem: IonItemSliding) {
+  async delete(item: TodoItem, slidingItem: IonItemSliding) {
     await slidingItem.close();
     this.deleteConfirm(item);
   }

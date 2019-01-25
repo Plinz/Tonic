@@ -5,6 +5,7 @@ import 'rxjs/Rx';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { GoogleAuthService } from '../google-auth-service/google-auth-service';
+import { FcmService } from '../fcm-service/fcm.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,8 @@ export class TodoServiceProvider {
   user: firebase.User;
 
   constructor(private afs: AngularFirestore,
-    private gAuth: GoogleAuthService) {
+    private gAuth: GoogleAuthService,
+    private fcm: FcmService) {
     this.itemsCollection = afs.collection<TodoList>('todolists');
     this.items = this.itemsCollection.snapshotChanges().map(actions => {
       return actions.map(action => {
@@ -61,8 +63,23 @@ export class TodoServiceProvider {
     this.itemsCollection.doc(listId).delete();
   }
 
+  public subscribeToList(list: TodoList) {
+    this.itemsCollection.doc(list.uuid).update({
+      subscribers: firebase.firestore.FieldValue.arrayUnion(this.fcm.token)
+    });
+    this.fcm.sub('todolists-' + list.uuid);
+  }
+
+  public unsubscribeFromList(list: TodoList) {
+
+    this.itemsCollection.doc(list.uuid).update({
+      subscribers: firebase.firestore.FieldValue.arrayRemove(this.fcm.token)
+    });
+    this.fcm.unsub('todolists-' + list.uuid);
+  }
+
   public addList(listName: string) {
-    const newList: TodoList = { uuid: this.afs.createId(), name: listName, nbNotFinished: 0, shared: false, owner: this.user.uid, items: [] };
+    const newList: TodoList = { uuid: this.afs.createId(), name: listName, nbNotFinished: 0, shared: false, owner: this.user.uid, items: [], subscribers: [] };
     this.itemsCollection.doc(newList.uuid).set(newList);
   }
 
@@ -74,7 +91,7 @@ export class TodoServiceProvider {
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
   }
 
-  public changeSharedStatus(listUuid: string, value: boolean){
+  public changeSharedStatus(listUuid: string, value: boolean) {
     this.itemsCollection.doc(listUuid).update({
       shared: value
     });
@@ -90,7 +107,9 @@ export class TodoServiceProvider {
         nbNotFinished: list.nbNotFinished + 1
       });
     }
-    this.itemsCollection.doc(list.uuid).collection('todoitems').doc(editedItem.uuid).set(editedItem);
+    this.itemsCollection.doc(list.uuid).collection('todoitems').doc(editedItem.uuid).update(
+      { complete: editedItem.complete }
+    );
   }
 
   public editTodo(listUuid: string, editedItem: TodoItem) {

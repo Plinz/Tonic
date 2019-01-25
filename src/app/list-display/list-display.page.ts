@@ -61,7 +61,8 @@ export class ListDisplayPage implements OnInit {
     await alert.present();
   }
 
-  async edit(item: TodoList) {
+  async edit(item: TodoList, slidingItem: IonItemSliding) {
+    await slidingItem.close();
     const alert = await this.alertCtrl.create({
       header: 'Edit list : ' + item.name,
       inputs: [

@@ -21,7 +21,6 @@ export class GoogleAuthService {
         private afAuth: AngularFireAuth,
         private afs: AngularFirestore,
         private router: NavController,
-        private toastController: ToastController,
         private fcm: FcmService,
         private platform: Platform,
         private gplus: GooglePlus) {
