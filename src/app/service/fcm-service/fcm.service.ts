@@ -49,7 +49,7 @@ export class FcmService {
         }
     }
 
-    async makeToast(message) {
+    public async makeToast(message) {
         const toast = await this.toastController.create({
             message,
             duration: 5000,

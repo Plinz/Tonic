@@ -55,11 +55,6 @@ export class TodoServiceProvider {
   }
 
   public deleteList(listId: string) {
-    this.itemsCollection.doc(listId).collection('todoitems').valueChanges().subscribe(res => {
-      res.map((item: TodoItem) => {
-        this.itemsCollection.doc(listId).collection('todoitems').doc(item.uuid).delete();
-      })
-    });
     this.itemsCollection.doc(listId).delete();
   }
 

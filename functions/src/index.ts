@@ -95,6 +95,36 @@ export const sendOnNewSharedList = functions.region('europe-west1').firestore
         return admin.messaging().send(payload);
     }));
 
+/**
+ * Before deleting the list : unsubscribe each device which subscribed to it 
+ * and clean the todoitems nested collection
+ */
+export const onDeleteList = functions.region('europe-west1').firestore
+    .document('todolists/{listId}')
+    .onDelete(async (snapshot, context) => {
+        const list = snapshot.data();
+        const tokens = list!.subscribers;
+
+        const notification: admin.messaging.Notification = {
+            title: 'A list where you subscribed was deleted !',
+            body: 'List  ' + list!.name + ' deleted !'
+        }
+
+        const payload: admin.messaging.Message = {
+            notification,
+            topic: 'todolists-' + list!.uuid
+        }
+
+        const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
+
+        await admin.messaging().send(payload);
+        await admin.messaging().unsubscribeFromTopic(tokens, 'todolists-' + list!.uuid);
+        await collectionRef.get().then((val) => {
+            val.forEach(async doc => doc.ref.delete());
+        }
+        );
+    });
+
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
 //

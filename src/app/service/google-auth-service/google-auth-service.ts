@@ -8,7 +8,6 @@ import { ToastController, Platform, NavController } from '@ionic/angular';
 import { FcmService } from '../fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { User } from 'src/app/domain/user';
-import {share} from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
