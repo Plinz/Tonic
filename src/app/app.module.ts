@@ -27,7 +27,8 @@ const firebase = {
   databaseURL: "https://tonic0.firebaseio.com",
   projectId: "tonic0",
   storageBucket: "tonic0.appspot.com",
-  messagingSenderId: "1036845890573"
+  messagingSenderId: "1036845890573",
+  timestampsInSnapshots: true
 }
 
 @NgModule({

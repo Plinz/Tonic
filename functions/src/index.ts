@@ -147,26 +147,28 @@ export const onDeleteList = functions.region('europe-west1').firestore
     .document('todolists/{listId}')
     .onDelete(async (snapshot, context) => {
         const list = snapshot.data();
+        const topic = 'todolists-' + list!.uuid
         const subscribers = list!.subscribers;
         const tokens: string[] = [];
-        subscribers.forEach(async (val: string) => tokens.push(...await findTokensFromUser(val)));
-
         const notification: admin.messaging.Notification = {
             title: 'A list where you subscribed was deleted !',
             body: 'List  ' + list!.name + ' deleted !'
         }
-
         const payload: admin.messaging.Message = {
             notification,
-            topic: 'todolists-' + list!.uuid
+            topic
         }
-
-        const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
-
         await admin.messaging().send(payload);
+        subscribers.forEach(async (val: string) => {
+            tokens.push(...await findTokensFromUser(val));
+            await admin.firestore().collection("users").doc(val).update({
+                topics: admin.firestore.FieldValue.arrayRemove(topic)
+            });
+        });
         if (tokens.length > 0) {
             await admin.messaging().unsubscribeFromTopic(tokens, 'todolists-' + list!.uuid);
         }
+        const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
         await collectionRef.get().then((val) => {
             val.forEach(async doc => doc.ref.delete());
         }
