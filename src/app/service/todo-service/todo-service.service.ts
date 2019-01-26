@@ -5,7 +5,6 @@ import 'rxjs/Rx';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { GoogleAuthService } from '../google-auth-service/google-auth-service';
-import { FcmService } from '../fcm-service/fcm.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +15,7 @@ export class TodoServiceProvider {
   user: firebase.User;
 
   constructor(private afs: AngularFirestore,
-    private gAuth: GoogleAuthService,
-    private fcm: FcmService) {
+    private gAuth: GoogleAuthService) {
     this.itemsCollection = afs.collection<TodoList>('todolists');
     this.items = this.itemsCollection.snapshotChanges().map(actions => {
       return actions.map(action => {
@@ -66,7 +64,6 @@ export class TodoServiceProvider {
       .doc(this.user.uid).update({
         topics: firebase.firestore.FieldValue.arrayUnion('todolists-' + list.uuid)
       });
-    this.fcm.sub('todolists-' + list.uuid, this.user.uid);
   }
 
   public unsubscribeFromList(list: TodoList) {
@@ -77,7 +74,6 @@ export class TodoServiceProvider {
       .doc(this.user.uid).update({
         topics: firebase.firestore.FieldValue.arrayRemove('todolists-' + list.uuid)
       });
-    this.fcm.unsub('todolists-' + list.uuid, this.user.uid);
   }
 
   public addList(listName: string) {

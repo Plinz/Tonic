@@ -40,28 +40,57 @@ const field = (
     };
 };
 
-//Get all the topics from which a user subscribed
-const findTopicsFromUser = async (userId: string) => {
-    const topics: string[] = [];
-    await admin.firestore().collection('users').where('uid', '==', userId)
-        .get()
-        .then((val) => {
-            val.forEach(doc =>
-                doc.data().topics.forEach((topic: string) => topics.push(topic))
-            );
-        });
-    return topics;
-}
-
 //Find all tokens for a specified user
 const findTokensFromUser = async (userId: string) => {
     const tokens: string[] = [];
     await admin.firestore().collection('devices').where('userId', '==', userId)
         .get()
         .then((val) => {
-            val.forEach(doc => tokens.push(doc.data().token));
+            val.forEach(
+                doc => tokens.push(doc.data().token)
+            );
         });
     return tokens;
+}
+
+const findTokenFromUserList = async (subscribers: string[]) => {
+    const tokens: string[] = [];
+    for (const subscriber of subscribers) {
+        tokens.push(...await findTokensFromUser(subscriber));
+    }
+    return tokens;
+}
+
+
+const findTokensFromListSubscribers = async (listId: string) => {
+    const tokens: string[] = [];
+    await admin.firestore().collection('todolists').doc(listId).get()
+        .then(async (list) => {
+            for (const subscriber of list.data()!.subscribers) {
+                tokens.push(...await findTokensFromUser(subscriber));
+            }
+        });
+    return tokens;
+}
+
+const sendMessage = async (subscribersTokens: string[], payload: any) => {
+
+    if (subscribersTokens.length > 0) {
+        await admin.messaging().sendToDevice(subscribersTokens, payload).then((response) => {
+            // For each message check if there was an error.
+            response.results.forEach(async (result, index) => {
+                const error = result.error;
+                if (error) {
+                    // Cleanup the tokens who are not registered anymore.
+                    if (error.code === 'messaging/invalid-registration-token' ||
+                        error.code === 'messaging/registration-token-not-registered') {
+                        await admin.firestore().collection('devices').doc(subscribersTokens[index]).delete();
+                    }
+                }
+            });
+        });
+    }
+
 }
 
 //When a user is inserted, give him a list of topics
@@ -69,17 +98,6 @@ export const onUserInserted = functions.region('europe-west1').firestore
     .document('users/{userID}')
     .onCreate(async (snapshot, context) => {
         await admin.firestore().collection('users').doc(context.params.userID).update({ topics: [] });
-    });
-
-
-//When a device is inserted, get all the topics frol which the user previously subscribed and subscribe the new device to it
-export const onDeviceInserted = functions.region('europe-west1').firestore
-    .document('devices/{deviceId}')
-    .onCreate(async (snapshot, context) => {
-        const device = snapshot.data();
-        const topics: string[] = await findTopicsFromUser(device!.userId);
-        topics.forEach(async (topic: string) => await admin.messaging().subscribeToTopic(device!.token, topic));
-
     });
 
 export const subscribe = functions.https.onCall(
@@ -112,12 +130,11 @@ export const sendOnListItemCompleteChanged = functions.region('europe-west1').fi
             body: item!.name + ' set to ' + item!.complete
         }
 
-        const payload: admin.messaging.Message = {
-            notification,
-            topic: 'todolists-' + list.uuid
+        const payload = {
+            notification
         }
 
-        return admin.messaging().send(payload);
+        return sendMessage(await findTokensFromListSubscribers(list.uuid), payload);
     }));
 
 //Message to send to users who subscrided to list add
@@ -131,12 +148,10 @@ export const sendOnNewSharedList = functions.region('europe-west1').firestore
             body: list!.name + ' is now available !'
         }
 
-        const payload: admin.messaging.Message = {
-            notification,
-            topic: 'todolists'
+        const payload = {
+            notification
         }
-
-        return admin.messaging().send(payload);
+        return sendMessage(await findTokensFromListSubscribers(list!.uuid), payload);
     }));
 
 /**
@@ -147,27 +162,20 @@ export const onDeleteList = functions.region('europe-west1').firestore
     .document('todolists/{listId}')
     .onDelete(async (snapshot, context) => {
         const list = snapshot.data();
-        const topic = 'todolists-' + list!.uuid
         const subscribers = list!.subscribers;
-        const tokens: string[] = [];
         const notification: admin.messaging.Notification = {
             title: 'A list where you subscribed was deleted !',
             body: 'List  ' + list!.name + ' deleted !'
         }
-        const payload: admin.messaging.Message = {
-            notification,
-            topic
+        const payload = {
+            notification
         }
-        await admin.messaging().send(payload);
+        await sendMessage(await findTokenFromUserList(subscribers), payload);
         subscribers.forEach(async (val: string) => {
-            tokens.push(...await findTokensFromUser(val));
             await admin.firestore().collection("users").doc(val).update({
-                topics: admin.firestore.FieldValue.arrayRemove(topic)
+                topics: admin.firestore.FieldValue.arrayRemove('todolists-' + list!.uuid)
             });
         });
-        if (tokens.length > 0) {
-            await admin.messaging().unsubscribeFromTopic(tokens, 'todolists-' + list!.uuid);
-        }
         const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
         await collectionRef.get().then((val) => {
             val.forEach(async doc => doc.ref.delete());
