@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { of } from 'rxjs';
 import { auth } from 'firebase/app';
-import { ToastController, Platform, NavController } from '@ionic/angular';
+import { Platform, NavController } from '@ionic/angular';
 import { FcmService } from '../fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { User } from 'src/app/domain/user';
@@ -28,7 +28,7 @@ export class GoogleAuthService {
                 if (user) {
                     this.user = this.afAuth.user;
                 } else {
-                    this.user = of(null).pipe(share());
+                    this.user = of(null);
                 }
             }
         );

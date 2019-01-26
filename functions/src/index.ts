@@ -40,16 +40,60 @@ const field = (
     };
 };
 
+//Get all the topics from which a user subscribed
+const findTopicsFromUser = async (userId: string) => {
+    const topics: string[] = [];
+    await admin.firestore().collection('users').where('uid', '==', userId)
+        .get()
+        .then((val) => {
+            val.forEach(doc =>
+                doc.data().topics.forEach((topic: string) => topics.push(topic))
+            );
+        });
+    return topics;
+}
+
+//Find all tokens for a specified user
+const findTokensFromUser = async (userId: string) => {
+    const tokens: string[] = [];
+    await admin.firestore().collection('devices').where('userId', '==', userId)
+        .get()
+        .then((val) => {
+            val.forEach(doc => tokens.push(doc.data().token));
+        });
+    return tokens;
+}
+
+//When a user is inserted, give him a list of topics
+export const onUserInserted = functions.region('europe-west1').firestore
+    .document('users/{userID}')
+    .onCreate(async (snapshot, context) => {
+        await admin.firestore().collection('users').doc(context.params.userID).update({ topics: [] });
+    });
+
+
+//When a device is inserted, get all the topics frol which the user previously subscribed and subscribe the new device to it
+export const onDeviceInserted = functions.region('europe-west1').firestore
+    .document('devices/{deviceId}')
+    .onCreate(async (snapshot, context) => {
+        const device = snapshot.data();
+        const topics: string[] = await findTopicsFromUser(device!.userId);
+        topics.forEach(async (topic: string) => await admin.messaging().subscribeToTopic(device!.token, topic));
+
+    });
+
 export const subscribe = functions.https.onCall(
     async (data, context) => {
-        await admin.messaging().subscribeToTopic(data.token, data.topic);
+        const tokens = await findTokensFromUser(data.token);
+        await admin.messaging().subscribeToTopic(tokens, data.topic);
         return 'subscribed to ' + data.topic;
     }
 );
 
 export const unsubscribe = functions.https.onCall(
     async (data, context) => {
-        await admin.messaging().unsubscribeFromTopic(data.token, data.topic);
+        const tokens = await findTokensFromUser(data.token);
+        await admin.messaging().unsubscribeFromTopic(tokens, data.topic);
         return 'unsubscribed to ' + data.topic;
     }
 );
@@ -103,7 +147,9 @@ export const onDeleteList = functions.region('europe-west1').firestore
     .document('todolists/{listId}')
     .onDelete(async (snapshot, context) => {
         const list = snapshot.data();
-        const tokens = list!.subscribers;
+        const subscribers = list!.subscribers;
+        const tokens: string[] = [];
+        subscribers.forEach(async (val: string) => tokens.push(...await findTokensFromUser(val)));
 
         const notification: admin.messaging.Notification = {
             title: 'A list where you subscribed was deleted !',
@@ -118,7 +164,9 @@ export const onDeleteList = functions.region('europe-west1').firestore
         const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
 
         await admin.messaging().send(payload);
-        await admin.messaging().unsubscribeFromTopic(tokens, 'todolists-' + list!.uuid);
+        if (tokens.length > 0) {
+            await admin.messaging().unsubscribeFromTopic(tokens, 'todolists-' + list!.uuid);
+        }
         await collectionRef.get().then((val) => {
             val.forEach(async doc => doc.ref.delete());
         }

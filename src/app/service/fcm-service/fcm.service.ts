@@ -29,7 +29,7 @@ export class FcmService {
             userId: uid
         };
         devicesRef.doc(this.token).set(data);
-        this.sub('todolists');
+        this.sub('todolists', uid);
 
     }
 
@@ -66,17 +66,17 @@ export class FcmService {
         })
     }
 
-    sub(topic) {
+    sub(topic, userID) {
         this.fun
-            .httpsCallable('subscribe')({ topic, token: this.token })
+            .httpsCallable('subscribe')({ topic, token: userID })
             .pipe(tap(_ => this.makeToast(_)))
             .subscribe();
     }
 
 
-    unsub(topic) {
+    unsub(topic, userID) {
         this.fun
-            .httpsCallable('unsubscribe')({ topic, token: this.token })
+            .httpsCallable('unsubscribe')({ topic, token: userID })
             .pipe(tap(_ => this.makeToast(_)))
             .subscribe();
     }

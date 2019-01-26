@@ -4,5 +4,5 @@ export interface User {
     photoURL?: string;
     displayName?: string;
     favoriteColor?: string;
-    fcmTokens?: { [token: string]: true };
+    topics?: string[];
 }
