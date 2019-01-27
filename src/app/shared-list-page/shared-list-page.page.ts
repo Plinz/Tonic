@@ -17,4 +17,15 @@ export class SharedListPagePage implements OnInit {
     this.todoService.getSharedLists().subscribe((res) => this.lists = res);
   }
 
+  nbNotCompleted(uuid: String): number {
+    const listItems = this.lists.find(d => d.uuid === uuid).items;
+    let nb = 0;
+    for (const item of listItems) {
+      if (!item.complete) {
+        nb++;
+      }
+    }
+    return nb;
+  }
+
 }

@@ -10,7 +10,7 @@
 <ion-content padding fulscreen>
   <ion-list no-lines>
     <ion-item-sliding *ngFor="let item of lists" #slidingItem>
-      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{item.nbNotFinished}} items not
+      <ion-item [routerLink]="'/tabs/display-list-items/' + item.uuid">{{item.name}} {{nbNotCompleted(item.uuid)}} items not
         finished !</ion-item>
     </ion-item-sliding>
   </ion-list>

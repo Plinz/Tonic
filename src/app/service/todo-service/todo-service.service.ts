@@ -17,30 +17,41 @@ export class TodoServiceProvider {
   constructor(private afs: AngularFirestore,
     private gAuth: GoogleAuthService) {
     this.itemsCollection = afs.collection<TodoList>('todolists');
-    this.items = this.itemsCollection.snapshotChanges().map(actions => {
+    this.items = this.requestList(this.itemsCollection);
+    this.gAuth.user.subscribe((res) => this.user = res);
+  }
+
+  private requestList(collection: AngularFirestoreCollection<TodoList>): Observable<TodoList[]> {
+    return collection.snapshotChanges().map(actions => {
       return actions.map(action => {
         let data = action.payload.doc.data() as TodoList;
         const id = action.payload.doc.id;
-        return { id, ...data };
+        const items = [];
+        this.getTodos(data.uuid).subscribe((res) => {
+          items.length = 0;
+          res.forEach((item) => {
+            items.push(item);
+          });
+        });
+        return { id, ...data, items };
       });
     });
-    this.gAuth.user.subscribe((res) => this.user = res);
   }
 
   public getMyLists(): Observable<TodoList[]> {
     //const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('shared', '==', true).where('uuid','<',this.user.uid).where('uuid','>',this.user.uid));
     const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('owner', '==', this.user.uid));
-    return lists.valueChanges().map(vendors => vendors);
+    return this.requestList(lists);
   }
 
   public getSharedLists(): Observable<TodoList[]> {
     //const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('shared', '==', true).where('uuid','<',this.user.uid).where('uuid','>',this.user.uid));
     const lists = this.afs.collection<TodoList>('todolists', ref => ref.where('shared', '==', true));
-    return lists.valueChanges().map(vendors => vendors);
+    return this.requestList(lists);
   }
 
   public getTodos(listUuid: string): Observable<TodoItem[]> {
-    return this.itemsCollection.doc(listUuid).collection<TodoItem>('todoitems').valueChanges().map(vendors => vendors);
+    return this.itemsCollection.doc(listUuid).collection<TodoItem>('todoitems').valueChanges();
   }
 
   public getList(): Observable<TodoList[]> {
@@ -48,8 +59,9 @@ export class TodoServiceProvider {
   }
 
   public getUniqueList(uuid: string): Observable<TodoList> {
-    return this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', uuid).limit(1))
-      .valueChanges().map(vendors => vendors[0]);
+    const list = this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', uuid).limit(1));
+    return this.requestList(list).map(vendors => vendors[0]);
+
   }
 
   public deleteList(listId: string) {
@@ -83,9 +95,6 @@ export class TodoServiceProvider {
 
   public addTodo(list: TodoList, itemName: string, itemDescription: string) {
     const newTodo: TodoItem = { uuid: this.afs.createId(), name: itemName, desc: itemDescription, complete: false };
-    this.itemsCollection.doc(list.uuid).update({
-      nbNotFinished: list.nbNotFinished + 1
-    });
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
   }
 
@@ -96,15 +105,6 @@ export class TodoServiceProvider {
   }
 
   public changeCheck(list: TodoList, editedItem: TodoItem) {
-    if (editedItem.complete === true) {
-      this.itemsCollection.doc(list.uuid).update({
-        nbNotFinished: list.nbNotFinished - 1
-      });
-    } else {
-      this.itemsCollection.doc(list.uuid).update({
-        nbNotFinished: list.nbNotFinished + 1
-      });
-    }
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(editedItem.uuid).update(
       { complete: editedItem.complete }
     );
@@ -119,11 +119,6 @@ export class TodoServiceProvider {
   }
 
   public deleteTodo(list: TodoList, oldTodo: TodoItem) {
-    if (!oldTodo.complete) {
-      this.itemsCollection.doc(list.uuid).update({
-        nbNotFinished: list.nbNotFinished - 1
-      });
-    }
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(oldTodo.uuid).delete();
   }
 } 

@@ -15,7 +15,6 @@ export class DisplayListItemsPage implements OnInit {
 
   list: TodoList;
   uuid: string;
-  items: TodoItem[];
   user: firebase.User;
 
 
@@ -28,7 +27,6 @@ export class DisplayListItemsPage implements OnInit {
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
     this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
-    this.todoServiceProvider.getTodos(this.uuid).subscribe(res => { this.items = res });
     this.gAuth.user.subscribe((res) => this.user = res);
   }
 

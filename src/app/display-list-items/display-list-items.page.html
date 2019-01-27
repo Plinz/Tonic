@@ -9,7 +9,7 @@
     </ion-card-header>
     <ion-card-content>
       <ion-list no-lines>
-        <ion-item-sliding *ngFor="let item of items" #slidingItem>
+        <ion-item-sliding *ngFor="let item of list.items" #slidingItem>
           <ion-item>
             <ion-checkbox (click)="changeCheck(item)" color="success" [(ngModel)]="item.complete"></ion-checkbox>
             <ion-label padding-start>{{item.name}} {{item.desc}}</ion-label>
