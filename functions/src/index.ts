@@ -93,12 +93,30 @@ const sendMessage = async (subscribersTokens: string[], payload: any) => {
 
 }
 
-//When a user is inserted, give him a list of topics
-export const onUserInserted = functions.region('europe-west1').firestore
-    .document('users/{userID}')
-    .onCreate(async (snapshot, context) => {
-        await admin.firestore().collection('users').doc(context.params.userID).update({ topics: [] });
-    });
+export const copyList = functions.https.onCall(
+    async (data, context) => {
+        const newUuid = await admin.firestore().collection('todolists').add({});
+        console.log(newUuid.id);
+        const listToCopy = admin.firestore().collection('todolists').doc(data.listId);
+        const copy = {
+            uuid: newUuid.id,
+            name: (await listToCopy.get()).data()!.name,
+            shared: false,
+            owner: data.owner,
+            items: [],
+            subscribers: []
+        }
+
+        await admin.firestore().collection('todolists').doc(newUuid.id).set(copy);
+        await listToCopy.collection('todoitems')
+            .get()
+            .then(async (res) => {
+                for (const item of res.docs) {
+                    await admin.firestore().collection('todolists').doc(newUuid.id).collection('todoitems').doc(item.data().uuid).set(item.data());
+                }
+            });
+    }
+);
 
 export const subscribe = functions.https.onCall(
     async (data, context) => {
@@ -142,16 +160,17 @@ export const sendOnNewSharedList = functions.region('europe-west1').firestore
     .document('todolists/{listId}')
     .onUpdate(field('shared', 'CHANGED', async (snapshot, context) => {
         const list = snapshot.after.data();
-
-        const notification: admin.messaging.Notification = {
-            title: 'New shared list available !',
-            body: list!.name + ' is now available !'
+        if (list!.shared) {
+            const notification: admin.messaging.Notification = {
+                title: 'New shared list available !',
+                body: list!.name + ' is now available !'
+            }
+            const payload = {
+                notification,
+                topic: 'todolists'
+            }
+            await admin.messaging().send(payload);
         }
-
-        const payload = {
-            notification
-        }
-        return sendMessage(await findTokensFromListSubscribers(list!.uuid), payload);
     }));
 
 /**
@@ -165,17 +184,12 @@ export const onDeleteList = functions.region('europe-west1').firestore
         const subscribers = list!.subscribers;
         const notification: admin.messaging.Notification = {
             title: 'A list where you subscribed was deleted !',
-            body: 'List  ' + list!.name + ' deleted !'
+            body: 'List ' + list!.name + ' deleted !'
         }
         const payload = {
             notification
         }
         await sendMessage(await findTokenFromUserList(subscribers), payload);
-        subscribers.forEach(async (val: string) => {
-            await admin.firestore().collection("users").doc(val).update({
-                topics: admin.firestore.FieldValue.arrayRemove('todolists-' + list!.uuid)
-            });
-        });
         const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
         await collectionRef.get().then((val) => {
             val.forEach(async doc => doc.ref.delete());
@@ -183,9 +197,20 @@ export const onDeleteList = functions.region('europe-west1').firestore
         );
     });
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+
+export const onListNameChange = functions.region('europe-west1').firestore
+    .document('todolists/{listId}')
+    .onUpdate(field('name', 'CHANGED', async (snapshot, context) => {
+        const list = snapshot.after.data();
+        const subscribers = list!.subscribers;
+        const notification: admin.messaging.Notification = {
+            title: 'The name of a list where you subscribed was modified !',
+            body: snapshot.before.data()!.name + ' changed to ' + list!.name + ' !'
+        }
+        const payload = {
+            notification
+        }
+
+        await sendMessage(await findTokenFromUserList(subscribers), payload);
+    }));
+

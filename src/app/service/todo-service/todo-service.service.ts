@@ -59,9 +59,7 @@ export class TodoServiceProvider {
   }
 
   public getUniqueList(uuid: string): Observable<TodoList> {
-    const list = this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', uuid).limit(1));
-    return this.requestList(list).map(vendors => vendors[0]);
-
+    return this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', uuid).limit(1)).valueChanges().map(vendors => vendors[0]);
   }
 
   public deleteList(listId: string) {
@@ -72,20 +70,12 @@ export class TodoServiceProvider {
     this.itemsCollection.doc(list.uuid).update({
       subscribers: firebase.firestore.FieldValue.arrayUnion(this.user.uid)
     });
-    this.afs.collection<TodoList>('users', ref => ref.where('uuid', '==', this.user.uid))
-      .doc(this.user.uid).update({
-        topics: firebase.firestore.FieldValue.arrayUnion('todolists-' + list.uuid)
-      });
   }
 
   public unsubscribeFromList(list: TodoList) {
     this.itemsCollection.doc(list.uuid).update({
       subscribers: firebase.firestore.FieldValue.arrayRemove(this.user.uid)
     });
-    this.afs.collection<TodoList>('users', ref => ref.where('uuid', '==', this.user.uid))
-      .doc(this.user.uid).update({
-        topics: firebase.firestore.FieldValue.arrayRemove('todolists-' + list.uuid)
-      });
   }
 
   public addList(listName: string) {

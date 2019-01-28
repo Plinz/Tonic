@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ToastController, Platform } from '@ionic/angular';
+import { ToastController, Platform, LoadingController } from '@ionic/angular';
 import { AngularFireMessaging } from '@angular/fire/messaging';
 import { tap } from 'rxjs/operators';
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -15,7 +15,8 @@ export class FcmService {
         private toastController: ToastController,
         private fun: AngularFireFunctions,
         private afs: AngularFirestore,
-        private platform: Platform) {
+        private platform: Platform,
+        private loadingController: LoadingController) {
         this.afMessaging.messaging.subscribe((_messaging) => {
             _messaging.onMessage = _messaging.onMessage.bind(_messaging);
             _messaging.onTokenRefresh = _messaging.onTokenRefresh.bind(_messaging);
@@ -79,5 +80,13 @@ export class FcmService {
             .httpsCallable('unsubscribe')({ topic, token: userID })
             .pipe(tap(_ => this.makeToast(_)))
             .subscribe();
+    }
+
+    async copyList(listId, owner) {
+        const loading = await this.loadingController.create();
+        loading.present();
+        this.fun
+            .httpsCallable('copyList')({ listId, owner }).subscribe(() => loading.dismiss());
+
     }
 }

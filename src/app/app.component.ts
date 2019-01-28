@@ -29,7 +29,8 @@ export class AppComponent {
     } else if (this.platform.is('ios')) {
       adId = 'YOUR_ADID_IOS';
     }
-    this.admob.createBanner({ adId, autoShow: true });
+    this.admob.createBanner({ adId, isTesting: false,
+       autoShow: true });
   }
 
   initializeApp() {

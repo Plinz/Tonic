@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AlertController, ModalController, IonItemSliding } from '@ionic/angular';
 import { ModalListItemComponent } from './modal/modal-list-item.page';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
+import { FcmService } from '../service/fcm-service/fcm.service';
 
 @Component({
   selector: 'app-display-list-items',
@@ -14,6 +15,7 @@ import { GoogleAuthService } from '../service/google-auth-service/google-auth-se
 export class DisplayListItemsPage implements OnInit {
 
   list: TodoList;
+  todos: TodoItem[];
   uuid: string;
   user: firebase.User;
 
@@ -22,11 +24,13 @@ export class DisplayListItemsPage implements OnInit {
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private modalController: ModalController,
-    private gAuth: GoogleAuthService) { }
+    private gAuth: GoogleAuthService,
+    private fcm: FcmService) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
     this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
+    this.todoServiceProvider.getTodos(this.uuid).subscribe(res => this.todos = res);
     this.gAuth.user.subscribe((res) => this.user = res);
   }
 
@@ -102,4 +106,15 @@ export class DisplayListItemsPage implements OnInit {
     await slidingItem.close();
     this.deleteConfirm(item);
   }
+
+
+  isSubscriber() {
+    return this.list.subscribers.findIndex(val => val === this.user.uid) !== -1;
+  }
+
+  copyList() {
+    this.fcm.copyList(this.list.uuid, this.user.uid);
+  }
+
+
 }
