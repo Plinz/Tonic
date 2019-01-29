@@ -15,8 +15,7 @@ export class FcmService {
         private toastController: ToastController,
         private fun: AngularFireFunctions,
         private afs: AngularFirestore,
-        private platform: Platform,
-        private loadingController: LoadingController) {
+        private platform: Platform) {
         this.afMessaging.messaging.subscribe((_messaging) => {
             _messaging.onMessage = _messaging.onMessage.bind(_messaging);
             _messaging.onTokenRefresh = _messaging.onTokenRefresh.bind(_messaging);
@@ -82,11 +81,5 @@ export class FcmService {
             .subscribe();
     }
 
-    async copyList(listId, owner) {
-        const loading = await this.loadingController.create();
-        loading.present();
-        this.fun
-            .httpsCallable('copyList')({ listId, owner }).subscribe(() => loading.dismiss());
 
-    }
 }

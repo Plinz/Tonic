@@ -5,6 +5,7 @@ import 'rxjs/Rx';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { GoogleAuthService } from '../google-auth-service/google-auth-service';
+import { LoadingController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,8 @@ export class TodoServiceProvider {
   user: firebase.User;
 
   constructor(private afs: AngularFirestore,
-    private gAuth: GoogleAuthService) {
+    private gAuth: GoogleAuthService,
+    private loadingController: LoadingController) {
     this.itemsCollection = afs.collection<TodoList>('todolists');
     this.items = this.requestList(this.itemsCollection);
     this.gAuth.user.subscribe((res) => this.user = res);
@@ -110,5 +112,29 @@ export class TodoServiceProvider {
 
   public deleteTodo(list: TodoList, oldTodo: TodoItem) {
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(oldTodo.uuid).delete();
+  }
+
+  public async copyList(list: TodoList, items: TodoItem[]) {
+    const loading = await this.loadingController.create();
+    await loading.present();
+    const duplicateList: TodoList = JSON.parse(JSON.stringify(list));
+    const duplicateItems: TodoItem[] = JSON.parse(JSON.stringify(items));
+    const newList: TodoList = {
+      uuid: this.afs.createId(),
+      name: duplicateList.name,
+      nbNotFinished: 0,
+      shared: false,
+      owner: this.user.uid,
+      items: [],
+      subscribers: []
+    };
+    const baseRef = this.afs.collection('todolists');
+    const batch = this.afs.firestore.batch();
+    batch.set(baseRef.doc(newList.uuid).ref, newList);
+    for (const item of duplicateItems) {
+      batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
+    }
+    await batch.commit();
+    await loading.dismiss();
   }
 } 

@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { AlertController, ModalController, IonItemSliding } from '@ionic/angular';
 import { ModalListItemComponent } from './modal/modal-list-item.page';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
-import { FcmService } from '../service/fcm-service/fcm.service';
 
 @Component({
   selector: 'app-display-list-items',
@@ -24,8 +23,7 @@ export class DisplayListItemsPage implements OnInit {
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private modalController: ModalController,
-    private gAuth: GoogleAuthService,
-    private fcm: FcmService) { }
+    private gAuth: GoogleAuthService) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
@@ -113,7 +111,7 @@ export class DisplayListItemsPage implements OnInit {
   }
 
   copyList() {
-    this.fcm.copyList(this.list.uuid, this.user.uid);
+    this.todoServiceProvider.copyList(this.list, this.todos);
   }
 
 

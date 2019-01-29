@@ -93,31 +93,6 @@ const sendMessage = async (subscribersTokens: string[], payload: any) => {
 
 }
 
-export const copyList = functions.https.onCall(
-    async (data, context) => {
-        const newUuid = await admin.firestore().collection('todolists').add({});
-        console.log(newUuid.id);
-        const listToCopy = admin.firestore().collection('todolists').doc(data.listId);
-        const copy = {
-            uuid: newUuid.id,
-            name: (await listToCopy.get()).data()!.name,
-            shared: false,
-            owner: data.owner,
-            items: [],
-            subscribers: []
-        }
-
-        await admin.firestore().collection('todolists').doc(newUuid.id).set(copy);
-        await listToCopy.collection('todoitems')
-            .get()
-            .then(async (res) => {
-                for (const item of res.docs) {
-                    await admin.firestore().collection('todolists').doc(newUuid.id).collection('todoitems').doc(item.data().uuid).set(item.data());
-                }
-            });
-    }
-);
-
 export const subscribe = functions.https.onCall(
     async (data, context) => {
         const tokens = await findTokensFromUser(data.token);
