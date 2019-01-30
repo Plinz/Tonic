@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1036845890573",
+    "firebase_url": "https://tonic0.firebaseio.com",
+    "project_id": "tonic0",
+    "storage_bucket": "tonic0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036845890573:android:2b894a298238a4d5",
+        "android_client_info": {
+          "package_name": "com.tonicteam.tonic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036845890573-7orf2mmkv73fu1i4nld6vqjisfg444q0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tonicteam.tonic",
+            "certificate_hash": "44a8013c7c025f2f9e5c6c0e8f27160721a39755"
+          }
+        },
+        {
+          "client_id": "1036845890573-j59mac31rt2ubbc96pfrbrv0gekju6er.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7nevr6ALAWnisIVhRMlbCCfkx1v6YE_s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1036845890573-j59mac31rt2ubbc96pfrbrv0gekju6er.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
