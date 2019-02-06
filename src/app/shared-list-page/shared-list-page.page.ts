@@ -10,6 +10,7 @@ import { TodoList } from '../domain/todo';
 export class SharedListPagePage implements OnInit {
 
   lists: TodoList[];
+  query = '';
 
   constructor(private todoService: TodoServiceProvider) { }
 
@@ -26,6 +27,14 @@ export class SharedListPagePage implements OnInit {
       }
     }
     return nb;
+  }
+
+  callback = (obs) => {
+    obs.subscribe((res) => this.lists = [].concat(...res));
+  }
+
+  queryByName() {
+    this.todoService.unauthenticated_search(this.query, this.callback);
   }
 
 }

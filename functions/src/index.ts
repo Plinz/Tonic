@@ -3,6 +3,13 @@ import * as admin from 'firebase-admin';
 import { isEqual } from 'lodash';
 import DocumentSnapshot = admin.firestore.DocumentSnapshot;
 admin.initializeApp();
+const ALGOLIA_ID = 'LLHP7Z6FT9';
+const ALGOLIA_ADMIN_KEY = '646dc5d6915ce9389fccac109ced6daa';
+const algoliasearch = require('algoliasearch');
+
+const ALGOLIA_SHARED_LIST_INDEX_NAME = 'shared-lists';
+const client = algoliasearch(ALGOLIA_ID, ALGOLIA_ADMIN_KEY);
+const index = client.initIndex(ALGOLIA_SHARED_LIST_INDEX_NAME);
 
 const isEquivalent = (before: any, after: any) => {
     return before && typeof before.isEqual === 'function'
@@ -78,13 +85,13 @@ const sendMessage = async (subscribersTokens: string[], payload: any) => {
     if (subscribersTokens.length > 0) {
         await admin.messaging().sendToDevice(subscribersTokens, payload).then((response) => {
             // For each message check if there was an error.
-            response.results.forEach(async (result, index) => {
+            response.results.forEach(async (result, idx) => {
                 const error = result.error;
                 if (error) {
                     // Cleanup the tokens who are not registered anymore.
                     if (error.code === 'messaging/invalid-registration-token' ||
                         error.code === 'messaging/registration-token-not-registered') {
-                        await admin.firestore().collection('devices').doc(subscribersTokens[index]).delete();
+                        await admin.firestore().collection('devices').doc(subscribersTokens[idx]).delete();
                     }
                 }
             });
@@ -108,6 +115,8 @@ export const unsubscribe = functions.https.onCall(
         return 'unsubscribed to ' + data.topic;
     }
 );
+
+
 
 //Message send to users when changing complete status
 export const sendOnListItemCompleteChanged = functions.region('europe-west1').firestore
@@ -170,6 +179,7 @@ export const onDeleteList = functions.region('europe-west1').firestore
             val.forEach(async doc => doc.ref.delete());
         }
         );
+        return index.deleteObject(context.params.listId);
     });
 
 
@@ -187,5 +197,17 @@ export const onListNameChange = functions.region('europe-west1').firestore
         }
 
         await sendMessage(await findTokenFromUserList(subscribers), payload);
+        list!.objectID = context.params.listId;
+        return index.saveObject(list);
     }));
+
+
+export const onListCreated = functions.region('europe-west1').firestore
+    .document('todolists/{listId}')
+    .onCreate(async (snapshot, context) => {
+        const list = snapshot.data()!;
+        list.objectID = context.params.listId;
+        return index.saveObject(list);
+
+    });
 

@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { TodoItem, TodoList } from "./../../domain/todo";
 import { Observable } from "rxjs/Observable";
 import 'rxjs/Rx';
+import { zip } from 'rxjs';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { GoogleAuthService } from '../google-auth-service/google-auth-service';
 import { LoadingController } from '@ionic/angular';
+import * as algoliasearch from 'algoliasearch';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +16,8 @@ export class TodoServiceProvider {
   itemsCollection: AngularFirestoreCollection<TodoList>;
   items: Observable<TodoList[]>;
   user: firebase.User;
+  ALGOLIA_APP_ID = 'LLHP7Z6FT9';     // Required - your Algolia app ID
+  ALGOLIA_SEARCH_KEY = '4d8446bfb7181e9d71d8ff1c350270ae'; // Optional - Only used for unauthenticated search
 
   constructor(private afs: AngularFirestore,
     private gAuth: GoogleAuthService,
@@ -37,6 +41,25 @@ export class TodoServiceProvider {
         });
         return { id, ...data, items };
       });
+    });
+  }
+
+  public unauthenticated_search(query, callback) {
+
+    // [START search_index_unsecure]
+    const client = algoliasearch(this.ALGOLIA_APP_ID, this.ALGOLIA_SEARCH_KEY);
+    const index = client.initIndex('shared-lists');
+    const afsCopy = this.afs;
+    let initialObservable = afsCopy.collection("todolists", ref => ref.where("name", "==", "")).valueChanges();
+    const zipO: Observable<any>[] = [];
+    zipO.push(initialObservable);
+
+    return index.search(query, (err, content) => {
+      for (const item of content.hits) {
+        const newObs = this.requestList(afsCopy.collection("todolists", ref => ref.where("uuid", "==", item.uuid)));
+        zipO.push(newObs);
+      }
+      callback(zip(...zipO));
     });
   }
 
