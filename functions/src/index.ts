@@ -8,8 +8,10 @@ const ALGOLIA_ADMIN_KEY = '646dc5d6915ce9389fccac109ced6daa';
 const algoliasearch = require('algoliasearch');
 
 const ALGOLIA_SHARED_LIST_INDEX_NAME = 'shared-lists';
+const ALGOLIA_USERS_INDEX_NAME = 'users';
 const client = algoliasearch(ALGOLIA_ID, ALGOLIA_ADMIN_KEY);
 const index = client.initIndex(ALGOLIA_SHARED_LIST_INDEX_NAME);
+const indexUsers = client.initIndex(ALGOLIA_USERS_INDEX_NAME);
 
 const isEquivalent = (before: any, after: any) => {
     return before && typeof before.isEqual === 'function'
@@ -104,7 +106,7 @@ export const subscribe = functions.https.onCall(
     async (data, context) => {
         const tokens = await findTokensFromUser(data.token);
         await admin.messaging().subscribeToTopic(tokens, data.topic);
-        return 'subscribed to ' + data.topic;
+        return 'Welcome to Tonic ! ';
     }
 );
 
@@ -209,5 +211,23 @@ export const onListCreated = functions.region('europe-west1').firestore
         list.objectID = context.params.listId;
         return index.saveObject(list);
 
+    });
+
+
+export const onUserCreated = functions.region('europe-west1').firestore
+    .document('users/{userId}')
+    .onCreate(async (snapshot, context) => {
+        const user = snapshot.data()!;
+        user.objectID = context.params.userId;
+        return indexUsers.saveObject(user);
+
+    });
+
+export const onUserUpdated = functions.region('europe-west1').firestore
+    .document('users/{userId}')
+    .onUpdate(async (snapshot, context) => {
+        const user = snapshot.after.data()!;
+        user.objectID = context.params.userId;
+        return indexUsers.saveObject(user);
     });
 

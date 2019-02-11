@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TodoServiceProvider } from '../service/todo-service/todo-service.service';
 import { TodoList } from '../domain/todo';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-shared-list-page',
@@ -10,12 +11,13 @@ import { TodoList } from '../domain/todo';
 export class SharedListPagePage implements OnInit {
 
   lists: TodoList[];
-  query = '';
+  query: '';
+  sub: Subscription;
 
   constructor(private todoService: TodoServiceProvider) { }
 
   ngOnInit() {
-    this.todoService.getSharedLists().subscribe((res) => this.lists = res);
+    this.sub = this.todoService.getSharedLists().subscribe((res) => this.lists = res);
   }
 
   nbNotCompleted(uuid: String): number {
@@ -30,11 +32,12 @@ export class SharedListPagePage implements OnInit {
   }
 
   callback = (obs) => {
-    obs.subscribe((res) => this.lists = [].concat(...res));
+    this.sub.unsubscribe();
+    this.sub = obs.subscribe((res) => this.lists = [].concat(...res));
   }
 
   queryByName() {
-    this.todoService.unauthenticated_search(this.query, this.callback);
+    this.todoService.algolia_search(this.query, this.callback, 'shared');
   }
 
 }

@@ -14,7 +14,6 @@ import * as algoliasearch from 'algoliasearch';
 })
 export class TodoServiceProvider {
   itemsCollection: AngularFirestoreCollection<TodoList>;
-  items: Observable<TodoList[]>;
   user: firebase.User;
   ALGOLIA_APP_ID = 'LLHP7Z6FT9';     // Required - your Algolia app ID
   ALGOLIA_SEARCH_KEY = '4d8446bfb7181e9d71d8ff1c350270ae'; // Optional - Only used for unauthenticated search
@@ -23,7 +22,6 @@ export class TodoServiceProvider {
     private gAuth: GoogleAuthService,
     private loadingController: LoadingController) {
     this.itemsCollection = afs.collection<TodoList>('todolists');
-    this.items = this.requestList(this.itemsCollection);
     this.gAuth.user.subscribe((res) => this.user = res);
   }
 
@@ -44,7 +42,7 @@ export class TodoServiceProvider {
     });
   }
 
-  public unauthenticated_search(query, callback) {
+  public algolia_search(query, callback, type: string) {
 
     // [START search_index_unsecure]
     const client = algoliasearch(this.ALGOLIA_APP_ID, this.ALGOLIA_SEARCH_KEY);
@@ -55,9 +53,19 @@ export class TodoServiceProvider {
     zipO.push(initialObservable);
 
     return index.search(query, (err, content) => {
+      const nameFound = [];
       for (const item of content.hits) {
-        const newObs = this.requestList(afsCopy.collection("todolists", ref => ref.where("uuid", "==", item.uuid)));
-        zipO.push(newObs);
+        if (nameFound.findIndex(val => val === item.name) == -1) {
+          let newObs;
+          if (type === 'shared') {
+            newObs = this.requestList(afsCopy.collection("todolists", ref => ref.where("name", "==", item.name).where("shared", "==", true)));
+          }
+          else {
+            newObs = this.requestList(afsCopy.collection("todolists", ref => ref.where("name", "==", item.name).where("owner", "==", this.user.uid)));
+          }
+          zipO.push(newObs);
+          nameFound.push(item.name);
+        }
       }
       callback(zip(...zipO));
     });
@@ -80,7 +88,7 @@ export class TodoServiceProvider {
   }
 
   public getList(): Observable<TodoList[]> {
-    return this.items;
+    return this.requestList(this.itemsCollection);
   }
 
   public getUniqueList(uuid: string): Observable<TodoList> {

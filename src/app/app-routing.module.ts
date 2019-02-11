@@ -7,6 +7,7 @@ const routes: Routes = [
   { path: '', loadChildren: './login/login.module#LoginPageModule' },
   { path: 'profile', loadChildren: './profile/profile.module#ProfilePageModule', canActivate: [AuthGuard] }
 
+
 ];
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

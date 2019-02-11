@@ -3,6 +3,7 @@ import { TodoServiceProvider } from '../service/todo-service/todo-service.servic
 import { TodoList } from '../domain/todo';
 import { AlertController, IonItemSliding, NavController, Platform } from '@ionic/angular';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-list-display',
@@ -13,6 +14,8 @@ export class ListDisplayPage implements OnInit {
 
   list: TodoList[];
   user: firebase.User;
+  query: '';
+  sub: Subscription;
 
   constructor(private todoServiceProvider: TodoServiceProvider,
     private alertCtrl: AlertController,
@@ -123,6 +126,15 @@ export class ListDisplayPage implements OnInit {
   async delete(item: TodoList, slidingItem: IonItemSliding) {
     await slidingItem.close();
     this.deleteConfirm(item.uuid);
+  }
+
+  callback = (obs) => {
+    this.sub.unsubscribe();
+    this.sub = obs.subscribe((res) => this.list = [].concat(...res));
+  }
+
+  queryByName() {
+    this.todoServiceProvider.algolia_search(this.query, this.callback, 'default');
   }
 
 }
