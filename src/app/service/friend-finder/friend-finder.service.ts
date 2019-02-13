@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
-import { TodoItem, TodoList } from "./../../domain/todo";
 import { Observable } from "rxjs/Observable";
 import 'rxjs/Rx';
-import { zip } from 'rxjs';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { combineLatest } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { GoogleAuthService } from '../google-auth-service/google-auth-service';
-import { LoadingController } from '@ionic/angular';
 import * as algoliasearch from 'algoliasearch';
+import { MessageTonic } from 'src/app/domain/message-tonic';
 
 @Injectable({
     providedIn: 'root',
@@ -18,11 +17,13 @@ export class FriendFinderService {
     ALGOLIA_SEARCH_KEY = '4d8446bfb7181e9d71d8ff1c350270ae'; // Optional - Only used for unauthenticated search
 
     constructor(private afs: AngularFirestore,
-        private gAuth: GoogleAuthService,
-        private loadingController: LoadingController) {
+        private gAuth: GoogleAuthService) {
         this.gAuth.user.subscribe((res) => this.user = res);
     }
 
+    public findOneFriend(uid: string) {
+        return this.afs.collection('users').doc(uid).valueChanges();
+    }
 
     public algolia_search_users(query, callback) {
 
@@ -43,7 +44,36 @@ export class FriendFinderService {
                     nameFound.push(item.displayName);
                 }
             }
-            callback(zip(...zipO));
+            callback(combineLatest(...zipO));
         });
+    }
+
+    public sendMessage(friendId: string, content: string) {
+        let conversationID = this.user.uid + friendId;
+        if (this.user.uid > friendId) {
+            conversationID = friendId + this.user.uid;
+        }
+        const message: MessageTonic = {
+            uid: this.afs.createId(),
+            sender: this.user.uid,
+            receivers: [friendId],
+            photoURL: this.user.photoURL,
+            content,
+            date: Date.now()
+        };
+        this.afs.collection('conversations')
+            .doc(conversationID)
+            .collection('messages')
+            .doc(message.uid)
+            .set(message);
+    }
+
+    public retrieveConversation(friendId: string): Observable<any[]> {
+        let conversationID = this.user.uid + friendId;
+        if (this.user.uid > friendId) {
+            conversationID = friendId + this.user.uid;
+        }
+        return this.afs.collection('conversations').doc(conversationID).collection('messages', ref => ref.orderBy('date','desc').limit(20)).valueChanges();
+
     }
 } 

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { TodoItem, TodoList } from "./../../domain/todo";
 import { Observable } from "rxjs/Observable";
 import 'rxjs/Rx';
-import { zip } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { GoogleAuthService } from '../google-auth-service/google-auth-service';
@@ -67,7 +67,7 @@ export class TodoServiceProvider {
           nameFound.push(item.name);
         }
       }
-      callback(zip(...zipO));
+      callback(combineLatest(...zipO));
     });
   }
 

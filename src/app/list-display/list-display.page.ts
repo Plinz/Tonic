@@ -23,7 +23,7 @@ export class ListDisplayPage implements OnInit {
     private router: NavController) { }
 
   ngOnInit() {
-    this.todoServiceProvider.getMyLists().subscribe(res => { this.list = res; });
+    this.sub = this.todoServiceProvider.getMyLists().subscribe(res => { this.list = res; });
     this.gAuth.user.subscribe(res => { this.user = res; });
   }
 
@@ -130,7 +130,9 @@ export class ListDisplayPage implements OnInit {
 
   callback = (obs) => {
     this.sub.unsubscribe();
-    this.sub = obs.subscribe((res) => this.list = [].concat(...res));
+    this.sub = obs.subscribe((res) => {
+      this.list = [].concat(...res);
+    });
   }
 
   queryByName() {

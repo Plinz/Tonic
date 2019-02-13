@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title *ngIf="friend">
+      <ion-avatar>
+        <img [src]="friend.photoURL">
+      </ion-avatar>
+      {{friend.displayName}}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-item>
+    <ion-list no-lines>
+      <ion-item *ngFor="let message of messages">
+        {{message.content}}
+      </ion-item>
+    </ion-list>
+  </ion-item>
+</ion-content>
+
+<ion-footer>
+  <ion-item>
+    <ion-label slot="start" position="floating">Your message</ion-label>
+    <ion-input [(ngModel)]=content clearInput></ion-input>
+    <ion-button slot="end" shape="round" (click)=sendMessage()>
+      <ion-icon name="send"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-footer>

@@ -118,24 +118,18 @@ export const unsubscribe = functions.https.onCall(
     }
 );
 
-
-
 //Message send to users when changing complete status
 export const sendOnListItemCompleteChanged = functions.region('europe-west1').firestore
     .document('todolists/{listId}/todoitems/{itemID}')
     .onUpdate(field('complete', 'CHANGED', async (snapshot, context) => {
         const item = snapshot.after.data();
         const documentRef = snapshot.after.ref.firestore.doc('/todolists/' + context.params.listId);
-
         const list = await documentRef.get().then((val) => val.data()!);
-
-        const notification: admin.messaging.Notification = {
-            title: 'Item updated from list ' + list.name,
-            body: item!.name + ' set to ' + item!.complete
-        }
-
         const payload = {
-            notification
+            notification: {
+                title: 'Item updated from list ' + list.name,
+                body: item!.name + ' set to ' + item!.complete
+            }
         }
 
         return sendMessage(await findTokensFromListSubscribers(list.uuid), payload);
@@ -147,12 +141,11 @@ export const sendOnNewSharedList = functions.region('europe-west1').firestore
     .onUpdate(field('shared', 'CHANGED', async (snapshot, context) => {
         const list = snapshot.after.data();
         if (list!.shared) {
-            const notification: admin.messaging.Notification = {
-                title: 'New shared list available !',
-                body: list!.name + ' is now available !'
-            }
             const payload = {
-                notification,
+                notification: {
+                    title: 'New shared list available !',
+                    body: list!.name + ' is now available !'
+                },
                 topic: 'todolists'
             }
             await admin.messaging().send(payload);
@@ -168,12 +161,11 @@ export const onDeleteList = functions.region('europe-west1').firestore
     .onDelete(async (snapshot, context) => {
         const list = snapshot.data();
         const subscribers = list!.subscribers;
-        const notification: admin.messaging.Notification = {
-            title: 'A list where you subscribed was deleted !',
-            body: 'List ' + list!.name + ' deleted !'
-        }
         const payload = {
-            notification
+            notification: {
+                title: 'A list where you subscribed was deleted !',
+                body: 'List ' + list!.name + ' deleted !'
+            }
         }
         await sendMessage(await findTokenFromUserList(subscribers), payload);
         const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
@@ -190,14 +182,12 @@ export const onListNameChange = functions.region('europe-west1').firestore
     .onUpdate(field('name', 'CHANGED', async (snapshot, context) => {
         const list = snapshot.after.data();
         const subscribers = list!.subscribers;
-        const notification: admin.messaging.Notification = {
-            title: 'The name of a list where you subscribed was modified !',
-            body: snapshot.before.data()!.name + ' changed to ' + list!.name + ' !'
-        }
         const payload = {
-            notification
+            notification: {
+                title: 'The name of a list where you subscribed was modified !',
+                body: snapshot.before.data()!.name + ' changed to ' + list!.name + ' !'
+            }
         }
-
         await sendMessage(await findTokenFromUserList(subscribers), payload);
         list!.objectID = context.params.listId;
         return index.saveObject(list);
@@ -231,3 +221,23 @@ export const onUserUpdated = functions.region('europe-west1').firestore
         return indexUsers.saveObject(user);
     });
 
+export const onMessageCreated = functions.region('europe-west1').firestore
+    .document('conversations/{convId}/messages/{messageId}')
+    .onCreate(async (snapshot, context) => {
+        const message = snapshot.data()!;
+        let senderName = '';
+        await admin.firestore().collection('users').where('uid', '==', message.sender).limit(1)
+            .get()
+            .then((val) => {
+                val.forEach(
+                    doc => senderName = doc.data().displayName
+                );
+            });
+        const payload = {
+            notification: {
+                title: 'New message from ' + senderName + ' !',
+                body: message.content
+            }
+        }
+        await sendMessage(await findTokenFromUserList(message.receivers), payload);
+    });
