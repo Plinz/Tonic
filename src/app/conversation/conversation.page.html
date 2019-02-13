@@ -14,7 +14,6 @@
 </ion-header>
 
 <ion-content padding>
-
   <ion-list no-lines class="msgbubble" *ngFor="let message of messages">
     <div class="innermsg left" *ngIf="message.sender === friend.uid">
       {{ message.content }}
