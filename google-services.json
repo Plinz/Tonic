@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "1036845890573-eruq75emds70clfjkpm2i7rjeehshu0l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tonicteam.tonic",
+            "certificate_hash": "d18edbc497b32240f8f3d89edfab8fb246c13575"
+          }
+        },
+        {
           "client_id": "1036845890573-j59mac31rt2ubbc96pfrbrv0gekju6er.apps.googleusercontent.com",
           "client_type": 3
         }
