@@ -12,9 +12,9 @@ import { MessageTonic } from 'src/app/domain/message-tonic';
     providedIn: 'root',
 })
 export class FriendFinderService {
-    user: firebase.User;
-    ALGOLIA_APP_ID = 'LLHP7Z6FT9';     // Required - your Algolia app ID
-    ALGOLIA_SEARCH_KEY = '4d8446bfb7181e9d71d8ff1c350270ae'; // Optional - Only used for unauthenticated search
+    public user: firebase.User;
+    private ALGOLIA_APP_ID = 'LLHP7Z6FT9';     // Required - your Algolia app ID
+    private ALGOLIA_SEARCH_KEY = '4d8446bfb7181e9d71d8ff1c350270ae'; // Optional - Only used for unauthenticated search
 
     constructor(private afs: AngularFirestore,
         private gAuth: GoogleAuthService) {
@@ -73,7 +73,27 @@ export class FriendFinderService {
         if (this.user.uid > friendId) {
             conversationID = friendId + this.user.uid;
         }
-        return this.afs.collection('conversations').doc(conversationID).collection('messages', ref => ref.orderBy('date','desc').limit(30)).valueChanges();
+        return this.afs.collection('conversations').doc(conversationID).collection('messages', ref => ref.orderBy('date', 'desc').limit(40)).valueChanges();
 
+    }
+
+    public retrieveFollowers() {
+        return this.afs.collection('users', ref => ref.where('followers', 'array-contains', this.user.uid).orderBy('displayName')).valueChanges();
+    }
+
+    public follow(id: string) {
+        this.afs.collection('users').doc(id).update(
+            {
+                followers: firebase.firestore.FieldValue.arrayUnion(this.user.uid),
+            }
+        );
+    }
+
+    public unfollow(id: string) {
+        this.afs.collection('users').doc(id).update(
+            {
+                followers: firebase.firestore.FieldValue.arrayRemove(this.user.uid),
+            }
+        );
     }
 }

@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 })
 export class FriendsPage implements OnInit {
 
+  user;
   friends = [];
   friendsToSearch = [];
   query = '';
@@ -17,18 +18,27 @@ export class FriendsPage implements OnInit {
   constructor(private friendFinder: FriendFinderService) { }
 
   ngOnInit() {
+    this.friendFinder.retrieveFollowers().subscribe(res => this.friends = res);
+    this.user = this.friendFinder.user;
   }
 
   callback = (obs) => {
     if(this.sub){
       this.sub.unsubscribe();
-
     }
     this.sub = obs.subscribe((res) => this.friendsToSearch = [].concat(...res));
   }
 
   queryByName() {
     this.friendFinder.algolia_search_users(this.query, this.callback);
+  }
+
+  follow(id: string) {
+    this.friendFinder.follow(id);
+  }
+
+  unfollow(id: string) {
+    this.friendFinder.unfollow(id);
   }
 
 }

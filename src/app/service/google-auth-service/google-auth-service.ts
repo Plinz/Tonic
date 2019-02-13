@@ -67,7 +67,8 @@ export class GoogleAuthService {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
-            photoURL: user.photoURL
+            photoURL: user.photoURL,
+            followers: []
         }
 
         userRef.set(data, { merge: true });
