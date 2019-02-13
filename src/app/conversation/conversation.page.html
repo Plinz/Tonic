@@ -13,7 +13,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content padding #contentIon>
 
   <ion-list no-lines class="msgbubble" *ngFor="let message of messages">
     <div class="innermsg left" *ngIf="message.sender === friend.uid">
@@ -28,10 +28,12 @@
 
 <ion-footer>
   <ion-item>
-    <ion-label slot="start" position="floating">Your message</ion-label>
-    <ion-input [(ngModel)]=content clearInput></ion-input>
+    <ion-input [(ngModel)]=content clearInput placeholder="Your message" #msgInput></ion-input>
     <ion-button slot="end" shape="round" (click)=sendMessage()>
       <ion-icon name="send"></ion-icon>
+    </ion-button>
+    <ion-button slot="end" shape="round" (click)=startMic()>
+      <ion-icon name="mic"></ion-icon>
     </ion-button>
   </ion-item>
 </ion-footer>

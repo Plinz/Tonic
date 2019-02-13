@@ -20,6 +20,7 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { GoogleAuthService } from './service/google-auth-service/google-auth-service';
 import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
+import { SpeechRecognition } from '@ionic-native/speech-recognition/ngx';
 
 const firebase = {
   apiKey: "AIzaSyChQEXVRCoovLUSEJWSVdugP6N_Soq74ps",
@@ -50,7 +51,8 @@ const firebase = {
     FcmService,
     GooglePlus,
     GoogleAuthService,
-    AdMobPro
+    AdMobPro,
+    SpeechRecognition
   ],
   bootstrap: [AppComponent]
 })

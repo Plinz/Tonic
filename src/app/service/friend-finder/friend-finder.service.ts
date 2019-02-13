@@ -73,7 +73,7 @@ export class FriendFinderService {
         if (this.user.uid > friendId) {
             conversationID = friendId + this.user.uid;
         }
-        return this.afs.collection('conversations').doc(conversationID).collection('messages', ref => ref.orderBy('date','desc').limit(20)).valueChanges();
+        return this.afs.collection('conversations').doc(conversationID).collection('messages', ref => ref.orderBy('date','desc').limit(30)).valueChanges();
 
     }
-} 
+}
