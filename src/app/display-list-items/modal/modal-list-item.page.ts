@@ -14,11 +14,12 @@ export class ModalListItemComponent {
     itemName: string;
     itemDescription: string;
     mode: string;
-    itemToEdit : TodoItem;
+    itemToEdit: TodoItem;
 
     constructor(private todoServiceProvider: TodoServiceProvider,
         public modalController: ModalController,
-        private navParams: NavParams) { }
+        private navParams: NavParams,
+        ) { }
 
     ionViewWillEnter() {
         this.list = this.navParams.get('list');
@@ -29,12 +30,12 @@ export class ModalListItemComponent {
     }
 
     add() {
-        if(this.mode === 'add'){
-            this.todoServiceProvider.addTodo(this.list,this.itemName,this.itemDescription);
+        if (this.mode === 'add') {
+            this.todoServiceProvider.addTodo(this.list, this.itemName, this.itemDescription);
         } else {
             this.itemToEdit.name = this.itemName;
             this.itemToEdit.desc = this.itemDescription;
-            this.todoServiceProvider.editTodo(this.list.uuid,this.itemToEdit);
+            this.todoServiceProvider.editTodo(this.list.uuid, this.itemToEdit);
         }
         this.modalController.dismiss();
     }
@@ -42,4 +43,5 @@ export class ModalListItemComponent {
     async myDismiss() {
         await this.modalController.dismiss();
     }
+
 }

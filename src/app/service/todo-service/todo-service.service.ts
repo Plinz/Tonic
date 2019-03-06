@@ -105,6 +105,12 @@ export class TodoServiceProvider {
     });
   }
 
+  public editDownloadURL(listID: string, url: string){
+    this.itemsCollection.doc(listID).update({
+      photoURL: url
+    });
+  }
+
   public unsubscribeFromList(list: TodoList) {
     this.itemsCollection.doc(list.uuid).update({
       subscribers: firebase.firestore.FieldValue.arrayRemove(this.user.uid)

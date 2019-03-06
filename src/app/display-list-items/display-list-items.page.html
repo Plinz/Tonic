@@ -9,9 +9,8 @@
       </ion-item>
     </ion-card-header>
     <ion-card-content>
-      <ion-img *ngIf="list && list.photoURL" [src]="converFileSrc(list.photoURL)"></ion-img>
-      <ion-label *ngIf="list && list.photoURL">{{list.photoURL}}</ion-label>
-      <ion-button (click)="uploadImage()">
+      <ion-img *ngIf="list && list.photoURL" [src]="list.photoURL"></ion-img>
+      <ion-button *ngIf="list.owner == user.uid" (click)="uploadImage()">
         Upload image
       </ion-button>
       <ion-list no-lines>

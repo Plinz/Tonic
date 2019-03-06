@@ -24,8 +24,8 @@ export class AppComponent {
   initAd() {
     let adId;
     if (this.platform.is('cordova')) {
-      //adId = 'ca-app-pub-4190464662297983/2077385695';
-      adId = 'ca-app-pub-3940256099942544/6300978111';
+      adId = 'ca-app-pub-4190464662297983/2077385695';
+      //adId = 'ca-app-pub-3940256099942544/6300978111';
     } else if (this.platform.is('ios')) {
       adId = 'YOUR_ADID_IOS';
     }

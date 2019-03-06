@@ -80,6 +80,4 @@ export class FcmService {
             .pipe(tap(_ => this.makeToast(_)))
             .subscribe();
     }
-
-
 }

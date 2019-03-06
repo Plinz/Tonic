@@ -25,12 +25,13 @@ export class DisplayListItemsPage implements OnInit {
     private alertCtrl: AlertController,
     private modalController: ModalController,
     private gAuth: GoogleAuthService,
-    private imageService: ImageUploaderService,
-    private toast: ToastController) { }
+    private imageService: ImageUploaderService) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
-    this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => { this.list = res });
+    this.todoServiceProvider.getUniqueList(this.uuid).subscribe(res => {
+      this.list = res;
+    });
     this.todoServiceProvider.getTodos(this.uuid).subscribe(res => this.todos = res);
     this.gAuth.user.subscribe((res) => this.user = res);
   }
@@ -117,31 +118,23 @@ export class DisplayListItemsPage implements OnInit {
     this.todoServiceProvider.copyList(this.list, this.todos);
   }
 
-  converFileSrc(fileUri) {
-    return (<any>window).Ionic.WebView.convertFileSrc(fileUri);
-  }
-
   async uploadImage() {
     const alert = await this.alertCtrl.create({
       buttons: [
         {
           text: 'Photo',
           handler: async (blah) => {
-            const base64Image = await this.imageService.useCam();
-            this.list.photoURL = base64Image;
-            this.imageService.uploadImage(this.list.photoURL, this.list.uuid).then((resolve) => {
-              
-            });
+            await this.imageService.useCam(this.list.uuid);
           }
         }, {
           text: 'Gallery',
           handler: async () => {
-            this.list.photoURL = (await this.imageService.findPic())[0];
-            this.list.photoURL = await this.imageService.uploadImage(this.list.photoURL, this.list.uuid);
+            this.imageService.findPic(this.list.uuid);
           }
         }
       ]
     });
     await alert.present();
   }
+
 }
