@@ -22,7 +22,7 @@ export class ImageUploaderService {
 
     findPic(listID) {
         this.imagePicker.getPictures({ maximumImagesCount: 1, outputType: 1, quality: 50 }).then((res) => {
-            this.uploadImage(res.replace("data:image/png;base64,", ""), listID);
+            this.uploadImage(res[0].replace("data:image/jpeg;base64,", ""), listID);
         });
     }
 
