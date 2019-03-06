@@ -93,5 +93,7 @@
         <variable name="PLAY_SERVICES_VERSION" value="16.0.0" />
     </plugin>
     <plugin name="cordova-plugin-speechrecognition" spec="1.2.0" />
+    <plugin name="cordova-plugin-telerik-imagepicker" spec="2.2.3" />
+    <plugin name="cordova-plugin-camera" spec="4.0.3" />
     <engine name="android" spec="7.1.4" />
 </widget>

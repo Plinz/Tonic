@@ -83,7 +83,6 @@ const findTokensFromListSubscribers = async (listId: string) => {
 }
 
 const sendMessage = async (subscribersTokens: string[], payload: any) => {
-
     if (subscribersTokens.length > 0) {
         await admin.messaging().sendToDevice(subscribersTokens, payload).then((response) => {
             // For each message check if there was an error.
@@ -141,14 +140,25 @@ export const sendOnNewSharedList = functions.region('europe-west1').firestore
     .onUpdate(field('shared', 'CHANGED', async (snapshot, context) => {
         const list = snapshot.after.data();
         if (list!.shared) {
+            let senderName = '';
+            let followers: string[] = [];
+            await admin.firestore().collection('users').where('uid', '==', list!.owner).limit(1)
+                .get()
+                .then((val) => {
+                    val.forEach(
+                        doc => {
+                            senderName = doc.data().displayName;
+                            followers = doc.data().followers;
+                        }
+                    );
+                });
             const payload = {
                 notification: {
-                    title: 'New shared list available !',
+                    title: senderName + ' shared a list !',
                     body: list!.name + ' is now available !'
-                },
-                topic: 'todolists'
+                }
             }
-            await admin.messaging().send(payload);
+            return sendMessage(await findTokenFromUserList(followers), payload);
         }
     }));
 
@@ -209,6 +219,7 @@ export const onUserCreated = functions.region('europe-west1').firestore
     .onCreate(async (snapshot, context) => {
         const user = snapshot.data()!;
         user.objectID = context.params.userId;
+        user.followers = [];
         return indexUsers.saveObject(user);
 
     });
@@ -218,6 +229,7 @@ export const onUserUpdated = functions.region('europe-west1').firestore
     .onUpdate(async (snapshot, context) => {
         const user = snapshot.after.data()!;
         user.objectID = context.params.userId;
+        user.followers = [];
         return indexUsers.saveObject(user);
     });
 

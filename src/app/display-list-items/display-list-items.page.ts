@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { TodoServiceProvider } from '../service/todo-service/todo-service.service';
 import { TodoItem, TodoList } from "../domain/todo";
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, ModalController, IonItemSliding } from '@ionic/angular';
+import { AlertController, ModalController, IonItemSliding, ToastController } from '@ionic/angular';
 import { ModalListItemComponent } from './modal/modal-list-item.page';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
+import { ImageUploaderService } from '../service/image-uploader/image-uploader-service';
 
 @Component({
   selector: 'app-display-list-items',
@@ -23,7 +24,9 @@ export class DisplayListItemsPage implements OnInit {
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private modalController: ModalController,
-    private gAuth: GoogleAuthService) { }
+    private gAuth: GoogleAuthService,
+    private imageService: ImageUploaderService,
+    private toast: ToastController) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
@@ -114,5 +117,31 @@ export class DisplayListItemsPage implements OnInit {
     this.todoServiceProvider.copyList(this.list, this.todos);
   }
 
+  converFileSrc(fileUri) {
+    return (<any>window).Ionic.WebView.convertFileSrc(fileUri);
+  }
 
+  async uploadImage() {
+    const alert = await this.alertCtrl.create({
+      buttons: [
+        {
+          text: 'Photo',
+          handler: async (blah) => {
+            const base64Image = await this.imageService.useCam();
+            this.list.photoURL = base64Image;
+            this.imageService.uploadImage(this.list.photoURL, this.list.uuid).then((resolve) => {
+              
+            });
+          }
+        }, {
+          text: 'Gallery',
+          handler: async () => {
+            this.list.photoURL = (await this.imageService.findPic())[0];
+            this.list.photoURL = await this.imageService.uploadImage(this.list.photoURL, this.list.uuid);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
 }

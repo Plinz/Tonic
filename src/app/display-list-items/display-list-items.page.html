@@ -3,11 +3,17 @@
     <ion-card-header>
       {{list.name}}
       <ion-item>
-        <ion-toggle *ngIf="list.owner == user.uid" (ionChange)="changeShared()"  color="success" [(ngModel)]="list.shared"></ion-toggle>
+        <ion-toggle *ngIf="list.owner == user.uid" (ionChange)="changeShared()" color="success"
+          [(ngModel)]="list.shared"></ion-toggle>
         <ion-label padding-start>Shared</ion-label>
       </ion-item>
     </ion-card-header>
     <ion-card-content>
+      <ion-img *ngIf="list && list.photoURL" [src]="converFileSrc(list.photoURL)"></ion-img>
+      <ion-label *ngIf="list && list.photoURL">{{list.photoURL}}</ion-label>
+      <ion-button (click)="uploadImage()">
+        Upload image
+      </ion-button>
       <ion-list no-lines>
         <ion-item-sliding *ngFor="let item of todos" #slidingItem>
           <ion-item>

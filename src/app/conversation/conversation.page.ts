@@ -27,7 +27,7 @@ export class ConversationPage implements OnInit {
     this.friendFinder.retrieveConversation(friendID).subscribe((res) => {
       this.messages = res.reverse();
       let that = this;
-      setTimeout(()=>{that.contentIon.scrollToBottom();},200); 
+      setTimeout(() => { that.contentIon.scrollToBottom(); }, 200);
     });
   }
 
@@ -44,24 +44,24 @@ export class ConversationPage implements OnInit {
     this.speechRecognition.startListening(options)
       .subscribe(
         (matches: string[]) => {
-            this.content = matches[0]
-            this.msgInput.setFocus()
-          },
+          this.content = matches[0]
+          this.msgInput.setFocus()
+        },
         (onerror) => console.log('error:', onerror)
       )
   }
 
-  startMic(){
+  startMic() {
     // Check feature available
     this.speechRecognition.isRecognitionAvailable()
       .then((available: boolean) => {
-        if (available){
+        if (available) {
           // Check permission
           this.speechRecognition.hasPermission()
             .then((hasPermission: boolean) => {
-              if(hasPermission){
+              if (hasPermission) {
                 this.recognition();
-              } else{
+              } else {
                 // Request permissions
                 this.speechRecognition.requestPermission().then(
                   () => this.recognition(),
@@ -69,15 +69,17 @@ export class ConversationPage implements OnInit {
                 )
               }
             })
-        } else{
+        } else {
           console.log('Feature non available')
         }
       })
   }
 
   sendMessage() {
-    this.friendFinder.sendMessage(this.friend.uid, this.content);
-    this.content = '';
+    if (this.content !== '') {
+      this.friendFinder.sendMessage(this.friend.uid, this.content);
+      this.content = '';
+    }
   }
 
 }

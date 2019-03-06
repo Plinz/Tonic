@@ -1,11 +1,13 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title *ngIf="user">
-      <ion-avatar>
+    <ion-item *ngIf="user">
+      <ion-avatar slot="start">
         <img [src]="user.photoURL">
       </ion-avatar>
-      Welcome {{user.displayName}}
-    </ion-title>
+      <ion-item slot="start">
+        {{user.displayName}}
+      </ion-item>
+    </ion-item>
   </ion-toolbar>
 </ion-header>
 

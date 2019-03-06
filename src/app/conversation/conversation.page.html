@@ -1,20 +1,17 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title *ngIf="friend">
-      <ion-item>
-        <ion-avatar slot="start">
-          <img [src]="friend.photoURL">
-        </ion-avatar>
-        <ion-label slot="end">
-          {{friend.displayName}}
-        </ion-label>
+    <ion-item *ngIf="friend">
+      <ion-avatar slot="start">
+        <img [src]="friend.photoURL">
+      </ion-avatar>
+      <ion-item slot="start">
+        {{friend.displayName}}
       </ion-item>
-    </ion-title>
+    </ion-item>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding #contentIon>
-
   <ion-list no-lines class="msgbubble" *ngFor="let message of messages">
     <div class="innermsg left" *ngIf="message.sender === friend.uid">
       {{ message.content }}
@@ -23,7 +20,6 @@
       {{ message.content }}
     </div>
   </ion-list>
-
 </ion-content>
 
 <ion-footer>

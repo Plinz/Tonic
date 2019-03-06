@@ -3,9 +3,10 @@ export interface TodoList {
   name : string,
   nbNotFinished: number,
   shared: boolean,
-  owner: string;
-  items : TodoItem[]
-  subscribers: string[]
+  owner: string,
+  items : TodoItem[],
+  subscribers: string[],
+  photoURL?: string
 }
 
 export interface TodoItem {
