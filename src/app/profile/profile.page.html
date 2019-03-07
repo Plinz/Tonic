@@ -1,16 +1,31 @@
 <ion-header>
   <ion-toolbar>
-    <ion-item *ngIf="user">
-      <ion-avatar slot="start">
-        <img [src]="user.photoURL">
-      </ion-avatar>
-      <ion-item slot="start">
-        {{user.displayName}}
+    <ion-row>
+      <ion-back-button></ion-back-button>
+      <ion-item *ngIf="user">
+        <ion-avatar slot="start">
+          <img [src]="user.photoURL">
+        </ion-avatar>
+        <ion-item slot="start">
+          {{user.displayName}}
+        </ion-item>
       </ion-item>
-    </ion-item>
+    </ion-row>
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
-  <ion-button (click)="logOut()"> Log out </ion-button>
+<ion-content padding *ngIf="user">
+  <ion-avatar style="height: 12rem; width: 12rem; margin: auto;">
+    <img [src]="user.photoURL">
+  </ion-avatar>
+  <ion-row center>
+    <ion-col text-center>
+      <ion-text>{{user.email}}</ion-text>
+    </ion-col>
+  </ion-row>
+  <ion-row center>
+    <ion-col text-center>
+      <ion-button style="text-align:center;" (click)="logOut()"> Log out </ion-button>
+    </ion-col>
+  </ion-row>
 </ion-content>

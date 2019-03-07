@@ -6,6 +6,7 @@ import { AlertController, ModalController, IonItemSliding, ToastController } fro
 import { ModalListItemComponent } from './modal/modal-list-item.page';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 import { ImageUploaderService } from '../service/image-uploader/image-uploader-service';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @Component({
   selector: 'app-display-list-items',
@@ -25,7 +26,8 @@ export class DisplayListItemsPage implements OnInit {
     private alertCtrl: AlertController,
     private modalController: ModalController,
     private gAuth: GoogleAuthService,
-    private imageService: ImageUploaderService) { }
+    private imageService: ImageUploaderService,
+    private barcodeScanner: BarcodeScanner) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
@@ -135,6 +137,13 @@ export class DisplayListItemsPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  encodedText() {
+    this.list.items = this.todos;
+    this.barcodeScanner.encode(this.barcodeScanner.Encode.TEXT_TYPE, JSON.stringify(this.list)).then((encodedData) => {
+    }, (err) => {
+    });
   }
 
 }

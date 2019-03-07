@@ -35,6 +35,7 @@
         </ion-item-sliding>
       </ion-list>
       <ion-button *ngIf="list.shared" (click)="copyList()">Copy this list to your lists</ion-button>
+      <ion-button *ngIf="list.shared" (click)="encodedText()">See QR for this list</ion-button>
       <ion-button *ngIf="!isSubscriber()" (click)="subscribeToList()">Subscribe to list</ion-button>
       <ion-button *ngIf="isSubscriber()" (click)="unsubscribeFromList()">Unsubscribe from list</ion-button>
     </ion-card-content>

@@ -14,6 +14,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AuthGuard } from './service/guard/auth.guard';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { Firebase } from '@ionic-native/firebase/ngx';
 import { FcmService } from './service/fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
@@ -58,6 +59,7 @@ const firebase = {
     AdMobPro,
     SpeechRecognition,
     ImagePicker,
+    BarcodeScanner,
     Camera
   ],
   bootstrap: [AppComponent]

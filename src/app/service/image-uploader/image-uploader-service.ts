@@ -3,8 +3,6 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { AngularFireStorage } from '@angular/fire/storage'
 import { TodoServiceProvider } from '../todo-service/todo-service.service';
-import { Base64 } from '@ionic-native/base64/ngx';
-import { ToastController } from '@ionic/angular';
 
 @Injectable({
     providedIn: 'root',
@@ -14,15 +12,15 @@ export class ImageUploaderService {
     constructor(private imagePicker: ImagePicker,
         private camera: Camera,
         private afs: AngularFireStorage,
-        private todoService: TodoServiceProvider,
-        private b64: Base64,
-        private ts: ToastController
+        private todoService: TodoServiceProvider
     ) {
     }
 
     findPic(listID) {
         this.imagePicker.getPictures({ maximumImagesCount: 1, outputType: 1, quality: 50 }).then((res) => {
-            this.uploadImage(res[0].replace("data:image/jpeg;base64,", ""), listID);
+            if (res && res[0]) {
+                this.uploadImage(res[0].replace("data:image/jpeg;base64,", ""), listID);
+            }
         });
     }
 

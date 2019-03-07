@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar (click)="seeProfile()">
-    <ion-title *ngIf="user">
+    <ion-title *ngIf="user" style="cursor: pointer;">
       {{user.displayName}}'s lists
     </ion-title>
   </ion-toolbar>
@@ -28,6 +28,7 @@
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>
+  <ion-button (click)="scanQR()">Scan Code</ion-button>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="add()">
       <ion-icon name="add"></ion-icon>

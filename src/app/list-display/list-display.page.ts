@@ -4,6 +4,7 @@ import { TodoList } from '../domain/todo';
 import { AlertController, IonItemSliding, NavController, Platform } from '@ionic/angular';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 import { Subscription } from 'rxjs';
+import { BarcodeScanner, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 
 @Component({
   selector: 'app-list-display',
@@ -16,11 +17,20 @@ export class ListDisplayPage implements OnInit {
   user: firebase.User;
   query: '';
   sub: Subscription;
+  barcodeScannerOptions: BarcodeScannerOptions;
+  encodeData: any;
+  scannedData: {};
 
   constructor(private todoServiceProvider: TodoServiceProvider,
     private alertCtrl: AlertController,
     private gAuth: GoogleAuthService,
-    private router: NavController) { }
+    private router: NavController,
+    private barcodeScanner: BarcodeScanner) {
+    this.barcodeScannerOptions = {
+      showTorchButton: true,
+      showFlipCameraButton: true
+    };
+  }
 
   ngOnInit() {
     this.sub = this.todoServiceProvider.getMyLists().subscribe(res => { this.list = res; });
@@ -139,4 +149,12 @@ export class ListDisplayPage implements OnInit {
     this.todoServiceProvider.algolia_search(this.query, this.callback, 'default');
   }
 
+  scanQR() {
+    this.barcodeScanner.scan().then(barcodeData => {
+      const list: TodoList = JSON.parse(barcodeData.text);
+      this.todoServiceProvider.copyList(list,list.items);
+    }).catch(err => {
+      console.log('Error', err);
+    });
+  }
 }
