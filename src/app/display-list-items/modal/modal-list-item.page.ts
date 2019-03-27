@@ -19,6 +19,7 @@ export class ModalListItemComponent {
     itemToEdit: TodoItem;
     geoloc: number[];
     map: any;
+    marker: any;
 
     constructor(private todoServiceProvider: TodoServiceProvider,
         public modalController: ModalController,
@@ -64,9 +65,17 @@ export class ModalListItemComponent {
         this.geolocation.getCurrentPosition(options).then((resp) => {
             this.geoloc = [resp.coords.latitude, resp.coords.longitude];
             this.loadmap(this.geoloc[0], this.geoloc[1]);
+
         }).catch((error) => {
             alert('Error getting location');
         });
+    }
+
+    onMapClick = (e) => {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+        this.geoloc = [lat, lng];
+        this.marker.setLatLng(new leaflet.LatLng(lat, lng));
     }
 
     loadmap(lat, lng) {
@@ -77,10 +86,13 @@ export class ModalListItemComponent {
           attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
           maxZoom: 20
         }).addTo(this.map);
-        var m = leaflet.marker([lat, lng]);
-        m.addTo(this.map);
+        this.marker = leaflet.marker([lat, lng]);
+        this.marker.addTo(this.map).addTo(this.map);
         this.map.flyTo([lat, lng], 16);
-  }, 50);
-}
+        this.map.on('click', this.onMapClick);
+      }, 50);
+    }
+
+
 
 }
