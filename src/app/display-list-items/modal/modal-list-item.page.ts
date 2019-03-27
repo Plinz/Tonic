@@ -34,8 +34,7 @@ export class ModalListItemComponent {
         this.mode = this.navParams.get('mode');
         this.itemToEdit = this.navParams.get('item');
         this.geoloc = this.navParams.get('geoloc');
-        if (this.geoloc)
-          this.loadmap(this.geoloc[0], this.geoloc[1]);
+        this.loadmap();
     }
 
     add() {
@@ -64,7 +63,13 @@ export class ModalListItemComponent {
           };
         this.geolocation.getCurrentPosition(options).then((resp) => {
             this.geoloc = [resp.coords.latitude, resp.coords.longitude];
-            this.loadmap(this.geoloc[0], this.geoloc[1]);
+            if (this.marker)
+              this.marker.setLatLng(new leaflet.LatLng(this.geoloc[0], this.geoloc[1]));
+            else {
+              this.marker = leaflet.marker([this.geoloc[0], this.geoloc[1]]);
+              this.marker.addTo(this.map).addTo(this.map);
+            }
+            this.map.flyTo([this.geoloc[0], this.geoloc[1]], 16);
 
         }).catch((error) => {
             alert('Error getting location');
@@ -75,10 +80,16 @@ export class ModalListItemComponent {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
         this.geoloc = [lat, lng];
+        if (this.marker)
+          this.marker.setLatLng(new leaflet.LatLng(lat, lng));
+        else {
+          this.marker = leaflet.marker([lat, lng]);
+          this.marker.addTo(this.map).addTo(this.map);
+        }
         this.marker.setLatLng(new leaflet.LatLng(lat, lng));
     }
 
-    loadmap(lat, lng) {
+    loadmap() {
       setTimeout(() => {
         this.map = leaflet.map('map').fitWorld();
         leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -86,9 +97,11 @@ export class ModalListItemComponent {
           attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
           maxZoom: 20
         }).addTo(this.map);
-        this.marker = leaflet.marker([lat, lng]);
-        this.marker.addTo(this.map).addTo(this.map);
-        this.map.flyTo([lat, lng], 16);
+        if(this.geoloc){
+          this.marker = leaflet.marker([this.geoloc[0], this.geoloc[1]]);
+          this.marker.addTo(this.map).addTo(this.map);
+          this.map.flyTo([this.geoloc[0], this.geoloc[1]], 16);
+        }
         this.map.on('click', this.onMapClick);
       }, 50);
     }
