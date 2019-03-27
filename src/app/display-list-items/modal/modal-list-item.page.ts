@@ -3,6 +3,7 @@ import { TodoServiceProvider } from 'src/app/service/todo-service/todo-service.s
 import { ModalController, NavParams } from '@ionic/angular';
 import { TodoItem, TodoList } from 'src/app/domain/todo';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import * as leaflet from 'leaflet';
 
 @Component({
     templateUrl: './modal-list-item.html',
@@ -17,6 +18,7 @@ export class ModalListItemComponent {
     mode: string;
     itemToEdit: TodoItem;
     geoloc: number[];
+    map: any;
 
     constructor(private todoServiceProvider: TodoServiceProvider,
         public modalController: ModalController,
@@ -31,6 +33,8 @@ export class ModalListItemComponent {
         this.mode = this.navParams.get('mode');
         this.itemToEdit = this.navParams.get('item');
         this.geoloc = this.navParams.get('geoloc');
+        if (this.geoloc)
+          this.loadmap(this.geoloc[0], this.geoloc[1]);
     }
 
     add() {
@@ -59,9 +63,24 @@ export class ModalListItemComponent {
           };
         this.geolocation.getCurrentPosition(options).then((resp) => {
             this.geoloc = [resp.coords.latitude, resp.coords.longitude];
+            this.loadmap(this.geoloc[0], this.geoloc[1]);
         }).catch((error) => {
             alert('Error getting location');
         });
     }
+
+    loadmap(lat, lng) {
+      setTimeout(() => {
+        this.map = leaflet.map('map').fitWorld();
+        leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          // tslint:disable-next-line
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          maxZoom: 20
+        }).addTo(this.map);
+        var m = leaflet.marker([lat, lng]);
+        m.addTo(this.map);
+        this.map.flyTo([lat, lng], 16);
+  }, 50);
+}
 
 }
