@@ -69,7 +69,7 @@ export class GoogleAuthService {
             email: user.email,
             displayName: user.displayName,
             photoURL: user.photoURL,
-            followers: []
+            followers: firebase.firestore.FieldValue.arrayUnion("x")
         }
 
         userRef.set(data, { merge: true }, );
