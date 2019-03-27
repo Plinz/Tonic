@@ -105,7 +105,7 @@ export class TodoServiceProvider {
     });
   }
 
-  public editDownloadURL(listID: string, url: string){
+  public editDownloadURL(listID: string, url: string) {
     this.itemsCollection.doc(listID).update({
       photoURL: url
     });
@@ -122,8 +122,11 @@ export class TodoServiceProvider {
     this.itemsCollection.doc(newList.uuid).set(newList);
   }
 
-  public addTodo(list: TodoList, itemName: string, itemDescription: string) {
-    const newTodo: TodoItem = { uuid: this.afs.createId(), name: itemName, desc: itemDescription, complete: false };
+  public addTodo(list: TodoList, itemName: string, itemDescription: string, geoloc: number[]) {
+    let newTodo: TodoItem = { uuid: this.afs.createId(), name: itemName, desc: itemDescription, complete: false };
+    if(geoloc){
+      newTodo.geoloc = geoloc;
+    }
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
   }
 
@@ -149,6 +152,30 @@ export class TodoServiceProvider {
 
   public deleteTodo(list: TodoList, oldTodo: TodoItem) {
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(oldTodo.uuid).delete();
+  }
+
+  public async copyListByID(listID: string) {
+    const loading = await this.loadingController.create();
+    await loading.present();
+    const list = await this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', listID).limit(1)).valueChanges().map(vendors => vendors[0]).first().toPromise();
+    const items = await this.itemsCollection.doc(listID).collection<TodoItem>('todoitems').valueChanges().first().toPromise();
+    const newList: TodoList = {
+      uuid: this.afs.createId(),
+      name: list.name,
+      nbNotFinished: 0,
+      shared: false,
+      owner: this.user.uid,
+      items: [],
+      subscribers: []
+    };
+    const baseRef = this.afs.collection('todolists');
+    const batch = this.afs.firestore.batch();
+    batch.set(baseRef.doc(newList.uuid).ref, newList);
+    for (const item of items) {
+      batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
+    }
+    await batch.commit();
+    await loading.dismiss();
   }
 
   public async copyList(list: TodoList, items: TodoItem[]) {

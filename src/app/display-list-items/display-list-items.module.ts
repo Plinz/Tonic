@@ -5,6 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { DisplayListItemsPage } from './display-list-items.page';
 import { ModalListItemModule } from './modal/modal-list-page.module';
+import { PopoverItemModule } from './popover/popover.module';
 
 const routes: Routes = [
   {
@@ -19,7 +20,8 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    ModalListItemModule
+    ModalListItemModule,
+    PopoverItemModule
   ],
   declarations: [DisplayListItemsPage]
 })

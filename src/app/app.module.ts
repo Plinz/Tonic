@@ -25,6 +25,7 @@ import { AngularFireStorageModule } from '@angular/fire/storage'
 import { SpeechRecognition } from '@ionic-native/speech-recognition/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Camera } from '@ionic-native/camera/ngx';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 const firebase = {
   apiKey: "AIzaSyChQEXVRCoovLUSEJWSVdugP6N_Soq74ps",
@@ -60,7 +61,8 @@ const firebase = {
     SpeechRecognition,
     ImagePicker,
     BarcodeScanner,
-    Camera
+    Camera,
+    Geolocation
   ],
   bootstrap: [AppComponent]
 })

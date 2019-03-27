@@ -8,6 +8,7 @@ import { Platform, NavController } from '@ionic/angular';
 import { FcmService } from '../fcm-service/fcm.service';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { User } from 'src/app/domain/user';
+import * as firebase from 'firebase';
 
 @Injectable({
     providedIn: 'root',
@@ -63,7 +64,7 @@ export class GoogleAuthService {
 
         const userRef: AngularFirestoreDocument<any> = this.afs.doc('users/' + user.uid);
 
-        const data: User = {
+        const data = {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
@@ -71,7 +72,7 @@ export class GoogleAuthService {
             followers: []
         }
 
-        userRef.set(data, { merge: true });
+        userRef.set(data, { merge: true }, );
         this.fcm.requestPermission(user.uid);
         this.router.navigateForward("/tabs");
 

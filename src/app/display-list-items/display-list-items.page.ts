@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { TodoServiceProvider } from '../service/todo-service/todo-service.service';
 import { TodoItem, TodoList } from "../domain/todo";
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, ModalController, IonItemSliding, ToastController } from '@ionic/angular';
+import { AlertController, ModalController, IonItemSliding, ToastController, PopoverController } from '@ionic/angular';
 import { ModalListItemComponent } from './modal/modal-list-item.page';
 import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 import { ImageUploaderService } from '../service/image-uploader/image-uploader-service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { PopoverComponent } from './popover/popover.component';
 
 @Component({
   selector: 'app-display-list-items',
@@ -27,7 +28,8 @@ export class DisplayListItemsPage implements OnInit {
     private modalController: ModalController,
     private gAuth: GoogleAuthService,
     private imageService: ImageUploaderService,
-    private barcodeScanner: BarcodeScanner) { }
+    private barcodeScanner: BarcodeScanner,
+    private popoverController: PopoverController) { }
 
   ngOnInit() {
     this.uuid = this.route.snapshot.paramMap.get('id');
@@ -100,7 +102,8 @@ export class DisplayListItemsPage implements OnInit {
           itemName: itemChosen.name,
           itemDescription: itemChosen.desc,
           mode: 'edit',
-          item: itemChosen
+          item: itemChosen,
+          geoloc: itemChosen.geoloc
         }
       });
     await modal.present();
@@ -117,7 +120,7 @@ export class DisplayListItemsPage implements OnInit {
   }
 
   copyList() {
-    this.todoServiceProvider.copyList(this.list, this.todos);
+    this.todoServiceProvider.copyListByID(this.list.uuid);
   }
 
   async uploadImage() {
@@ -141,9 +144,22 @@ export class DisplayListItemsPage implements OnInit {
 
   encodedText() {
     this.list.items = this.todos;
-    this.barcodeScanner.encode(this.barcodeScanner.Encode.TEXT_TYPE, JSON.stringify(this.list)).then((encodedData) => {
+    this.barcodeScanner.encode(this.barcodeScanner.Encode.TEXT_TYPE, this.list.uuid).then((encodedData) => {
     }, (err) => {
     });
+  }
+
+  async presentPopover(ev) {
+    const popover = await this.popoverController.create({
+      component: PopoverComponent,
+      event: ev,
+      componentProps: {
+        list: this.list,
+        todos: this.todos
+      },
+      translucent: true
+    });
+    return await popover.present();
   }
 
 }

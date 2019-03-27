@@ -1,12 +1,25 @@
 <ion-content padding>
   <ion-card *ngIf="list">
     <ion-card-header>
-      {{list.name}}
-      <ion-item>
-        <ion-toggle *ngIf="list.owner == user.uid" (ionChange)="changeShared()" color="success"
-          [(ngModel)]="list.shared"></ion-toggle>
-        <ion-label padding-start>Shared</ion-label>
-      </ion-item>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            {{list.name}}
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-toggle *ngIf="list.owner == user.uid" (ionChange)="changeShared()" color="success"
+              [(ngModel)]="list.shared"></ion-toggle>
+            <ion-label padding-start>Shared</ion-label>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-fab horizontal="end" vertical="center">
+            <ion-button item-end (click)="presentPopover($event)">Open</ion-button>
+          </ion-fab>
+        </ion-col>
+      </ion-row>
     </ion-card-header>
     <ion-card-content>
       <ion-img *ngIf="list && list.photoURL" [src]="list.photoURL"></ion-img>
@@ -34,8 +47,6 @@
           </ion-item-options>
         </ion-item-sliding>
       </ion-list>
-      <ion-button *ngIf="list.shared" (click)="copyList()">Copy this list to your lists</ion-button>
-      <ion-button *ngIf="list.shared" (click)="encodedText()">See QR for this list</ion-button>
       <ion-button *ngIf="!isSubscriber()" (click)="subscribeToList()">Subscribe to list</ion-button>
       <ion-button *ngIf="isSubscriber()" (click)="unsubscribeFromList()">Unsubscribe from list</ion-button>
     </ion-card-content>

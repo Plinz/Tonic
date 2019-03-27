@@ -7,5 +7,10 @@
         <ion-label color="primary" floating>Description</ion-label>
         <ion-input [(ngModel)]="itemDescription"></ion-input>
     </ion-item>
+    <ion-item>
+        <ion-label color="primary" floating>Geolocation</ion-label>
+        <ion-label color="primary" *ngIf="geoloc">{{geoloc[0]}} {{geoloc[1]}}</ion-label>
+    </ion-item>
+    <ion-button (click)="getGeoloc()">Geolocalisate</ion-button>
     <ion-button (click)="add()">Add item</ion-button>
 </ion-list>
