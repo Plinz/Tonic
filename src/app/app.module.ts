@@ -27,7 +27,6 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Camera } from '@ionic-native/camera/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Media } from '@ionic-native/media/ngx';
-import { IonicGestureConfig } from './service/gesture-config/gesture-config';
 import { File } from '@ionic-native/file/ngx';
 
 const firebase = {
@@ -67,11 +66,7 @@ const firebase = {
     Camera,
     Geolocation,
     Media,
-    File,
-    {
-      provide: HAMMER_GESTURE_CONFIG,
-      useClass: IonicGestureConfig
-    }
+    File
   ],
   bootstrap: [AppComponent]
 })

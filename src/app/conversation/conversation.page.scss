@@ -26,3 +26,14 @@
 .msgbubble {
     margin-bottom: 10px;
 }
+
+#recordPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 300;
+    border: black;
+    border-style: solid;
+    border-width: 3px;
+}

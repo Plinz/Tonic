@@ -1,3 +1,4 @@
+
 <ion-header>
   <ion-toolbar>
     <ion-item *ngIf="friend">
@@ -12,14 +13,17 @@
 </ion-header>
 
 <ion-content padding #contentIon>
+
+  <div id="recordPopup" *ngIf="recording == true">
+    <ion-item>Recording ...</ion-item>
+  </div>
   <ion-list no-lines class="msgbubble" *ngFor="let message of messages">
     <div class="innermsg left" *ngIf="isAudio(message.content) && message.sender === friend.uid">
-      Audio
+      <ion-button (click)="playAudio(message.content)">Play</ion-button>
     </div>
     <div class="innermsg right" *ngIf="isAudio(message.content) && message.sender != friend.uid">
-      Audio
+      <ion-button (click)="playAudio(message.content)">Play</ion-button>
     </div>
-
     <div class="innermsg left" *ngIf="!isAudio(message.content) && message.sender === friend.uid">
       {{ message.content }}
     </div>
@@ -38,7 +42,7 @@
     <ion-button slot="end" shape="round" (click)=startMic()>
       <ion-icon name="mic"></ion-icon>
     </ion-button>
-    <ion-button (press)="startRecording($event)" (pressup)="endRecording($event)">
+    <ion-button (touchstart)="startRecording($event)" (touchend)="endRecording($event)">
       <ion-icon name="chatboxes"></ion-icon>
     </ion-button>
   </ion-item>

@@ -18,6 +18,7 @@ export class ConversationPage implements OnInit {
   private messages;
   private mediaObject: MediaObject;
   private conversationID;
+  private recording: boolean;
   @ViewChild('msgInput') msgInput;
   @ViewChild('contentIon') contentIon: IonContent;
 
@@ -28,6 +29,7 @@ export class ConversationPage implements OnInit {
     private file: File,
     private imageUploader: ImageUploaderService) {
     const friendID = this.route.snapshot.paramMap.get('id');
+    this.recording = false;
     this.friendFinder.findOneFriend(friendID)
       .subscribe((res) => {
         this.friend = res;
@@ -92,25 +94,34 @@ export class ConversationPage implements OnInit {
   }
 
   startRecording(event) {
-    const fileName = 'record.aac';
-    const filePath = this.file.externalDataDirectory + fileName;
+    const filePath = this.file.externalDataDirectory + 'record.aac';
     console.log(filePath);
     this.mediaObject = this.media.create(filePath);
-    this.mediaObject.onSuccess.subscribe(async error => {
+    this.mediaObject.onSuccess.subscribe(async res => {
       this.mediaObject.release();
-      this.imageUploader.uploadAudio((await this.file.readAsDataURL(this.file.externalDataDirectory, fileName)), this.conversationID, Date.now().toString() + '.aac', this.friend.uid);
     });
     this.mediaObject.startRecord();
-
+    this.recording = true;
   }
 
-  endRecording(event) {
-    this.mediaObject.stopRecord();
+  async endRecording(event) {
+    if (this.recording) {
+      this.mediaObject.stopRecord();
+      this.recording = false;
+      this.imageUploader.uploadAudio((await this.file.readAsDataURL(this.file.externalDataDirectory, 'record.aac')), this.conversationID, Date.now().toString() + '.aac', this.friend.uid);
+    }
   }
 
   isAudio(message: string): boolean {
-
     return message.indexOf('vocal-message-header//') != -1;
+  }
+
+  playAudio(message: string) {
+    const obj = this.media.create(message.replace('vocal-message-header//', ''));
+    obj.onSuccess.subscribe(res => {
+      obj.release();
+    });
+    obj.play({ numberOfLoops: 1, playAudioWhenScreenIsLocked: false });
   }
 
 }
