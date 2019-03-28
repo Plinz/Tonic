@@ -11,6 +11,7 @@ Application Ionic de Todo List
   * Supprimer une liste (Uniquement si on est proriétaire de la liste)
   * Editer une liste (Changer le nom, uniquement si on est proriétaire de la liste)
   * Ajout d'items (Uniquement si on est proriétaire de la liste)
+  
   * Suppression d'item (Uniquement si on est proriétaire de la liste)
   * Edition d'item
       * Changer le nom de l'item (Uniquement si on est proriétaire de la liste)
