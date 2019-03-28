@@ -3,6 +3,9 @@ import { IonContent } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { FriendFinderService } from '../service/friend-finder/friend-finder.service';
 import { SpeechRecognition } from '@ionic-native/speech-recognition/ngx';
+import { Media, MediaObject } from '@ionic-native/media/ngx';
+import { File } from '@ionic-native/file/ngx'
+import { ImageUploaderService } from '../service/image-uploader/image-uploader-service';
 
 @Component({
   selector: 'app-conversation',
@@ -13,12 +16,17 @@ export class ConversationPage implements OnInit {
   private friend;
   private content = '';
   private messages;
+  private mediaObject: MediaObject;
+  private conversationID;
   @ViewChild('msgInput') msgInput;
   @ViewChild('contentIon') contentIon: IonContent;
 
   constructor(private route: ActivatedRoute,
     private friendFinder: FriendFinderService,
-    private speechRecognition: SpeechRecognition) {
+    private speechRecognition: SpeechRecognition,
+    private media: Media,
+    private file: File,
+    private imageUploader: ImageUploaderService) {
     const friendID = this.route.snapshot.paramMap.get('id');
     this.friendFinder.findOneFriend(friendID)
       .subscribe((res) => {
@@ -29,6 +37,7 @@ export class ConversationPage implements OnInit {
       let that = this;
       setTimeout(() => { that.contentIon.scrollToBottom(); }, 200);
     });
+    this.conversationID = this.friendFinder.retrieveConversationID(friendID);
   }
 
   ngOnInit() {
@@ -80,6 +89,28 @@ export class ConversationPage implements OnInit {
       this.friendFinder.sendMessage(this.friend.uid, this.content);
       this.content = '';
     }
+  }
+
+  startRecording(event) {
+    const fileName = 'record.aac';
+    const filePath = this.file.externalDataDirectory + fileName;
+    console.log(filePath);
+    this.mediaObject = this.media.create(filePath);
+    this.mediaObject.onSuccess.subscribe(async error => {
+      this.mediaObject.release();
+      this.imageUploader.uploadAudio((await this.file.readAsDataURL(this.file.externalDataDirectory, fileName)), this.conversationID, Date.now().toString() + '.aac', this.friend.uid);
+    });
+    this.mediaObject.startRecord();
+
+  }
+
+  endRecording(event) {
+    this.mediaObject.stopRecord();
+  }
+
+  isAudio(message: string): boolean {
+
+    return message.indexOf('vocal-message-header//') != -1;
   }
 
 }

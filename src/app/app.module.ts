@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -26,6 +26,9 @@ import { SpeechRecognition } from '@ionic-native/speech-recognition/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Camera } from '@ionic-native/camera/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Media } from '@ionic-native/media/ngx';
+import { IonicGestureConfig } from './service/gesture-config/gesture-config';
+import { File } from '@ionic-native/file/ngx';
 
 const firebase = {
   apiKey: "AIzaSyChQEXVRCoovLUSEJWSVdugP6N_Soq74ps",
@@ -47,7 +50,7 @@ const firebase = {
     AngularFireMessagingModule,
     AngularFireFunctionsModule,
     AngularFireStorageModule
-    ],
+  ],
   providers: [
     StatusBar,
     SplashScreen,
@@ -62,8 +65,14 @@ const firebase = {
     ImagePicker,
     BarcodeScanner,
     Camera,
-    Geolocation
+    Geolocation,
+    Media,
+    File,
+    {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: IonicGestureConfig
+    }
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

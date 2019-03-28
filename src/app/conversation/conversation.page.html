@@ -13,10 +13,17 @@
 
 <ion-content padding #contentIon>
   <ion-list no-lines class="msgbubble" *ngFor="let message of messages">
-    <div class="innermsg left" *ngIf="message.sender === friend.uid">
+    <div class="innermsg left" *ngIf="isAudio(message.content) && message.sender === friend.uid">
+      Audio
+    </div>
+    <div class="innermsg right" *ngIf="isAudio(message.content) && message.sender != friend.uid">
+      Audio
+    </div>
+
+    <div class="innermsg left" *ngIf="!isAudio(message.content) && message.sender === friend.uid">
       {{ message.content }}
     </div>
-    <div class="innermsg right" *ngIf="message.sender != friend.uid">
+    <div class="innermsg right" *ngIf="!isAudio(message.content) && message.sender != friend.uid">
       {{ message.content }}
     </div>
   </ion-list>
@@ -30,6 +37,9 @@
     </ion-button>
     <ion-button slot="end" shape="round" (click)=startMic()>
       <ion-icon name="mic"></ion-icon>
+    </ion-button>
+    <ion-button (press)="startRecording($event)" (pressup)="endRecording($event)">
+      <ion-icon name="chatboxes"></ion-icon>
     </ion-button>
   </ion-item>
 </ion-footer>

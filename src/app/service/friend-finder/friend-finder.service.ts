@@ -89,6 +89,14 @@ export class FriendFinderService {
         );
     }
 
+    public retrieveConversationID(friendId: string) {
+        let conversationID = this.user.uid + friendId;
+        if (this.user.uid > friendId) {
+            conversationID = friendId + this.user.uid;
+        }
+        return conversationID;
+    }
+
     public unfollow(id: string) {
         this.afs.collection('users').doc(id).update(
             {
