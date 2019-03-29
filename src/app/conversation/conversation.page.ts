@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { IonContent } from '@ionic/angular';
+import { IonContent, IonButton } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { FriendFinderService } from '../service/friend-finder/friend-finder.service';
 import { SpeechRecognition } from '@ionic-native/speech-recognition/ngx';
@@ -19,6 +19,8 @@ export class ConversationPage implements OnInit {
   private mediaObject: MediaObject;
   private conversationID;
   private recording: boolean;
+  private initialEventPosY;
+  private messageRecord = "Recording : Pan up to cancel, release your finger to validate.";
   @ViewChild('msgInput') msgInput;
   @ViewChild('contentIon') contentIon: IonContent;
 
@@ -55,8 +57,8 @@ export class ConversationPage implements OnInit {
     this.speechRecognition.startListening(options)
       .subscribe(
         (matches: string[]) => {
-          this.content = matches[0]
-          this.msgInput.setFocus()
+          this.content = matches[0];
+          this.msgInput.setFocus();
         },
         (onerror) => console.log('error:', onerror)
       )
@@ -94,8 +96,9 @@ export class ConversationPage implements OnInit {
   }
 
   startRecording(event) {
+    this.messageRecord = "Recording : Pan up to cancel, release your finger to validate.";
+    this.initialEventPosY = event.targetTouches[0].clientY;
     const filePath = this.file.externalDataDirectory + 'record.aac';
-    console.log(filePath);
     this.mediaObject = this.media.create(filePath);
     this.mediaObject.onSuccess.subscribe(async res => {
       this.mediaObject.release();
@@ -108,7 +111,18 @@ export class ConversationPage implements OnInit {
     if (this.recording) {
       this.mediaObject.stopRecord();
       this.recording = false;
-      this.imageUploader.uploadAudio((await this.file.readAsDataURL(this.file.externalDataDirectory, 'record.aac')), this.conversationID, Date.now().toString() + '.aac', this.friend.uid);
+      if (Math.abs(event.changedTouches[0].clientY - this.initialEventPosY) <= 100) {
+        this.imageUploader.uploadAudio((await this.file.readAsDataURL(this.file.externalDataDirectory, 'record.aac')), this.conversationID, Date.now().toString() + '.aac', this.friend.uid);
+      }
+    }
+  }
+
+  onTouchMove(event) {
+    if (Math.abs(event.targetTouches[0].clientY - this.initialEventPosY) > 100) {
+      this.messageRecord = 'Release your finger to cancel recording';
+    }
+    else {
+      this.messageRecord = "Recording : Pan up to cancel, release your finger to validate.";
     }
   }
 
@@ -116,10 +130,12 @@ export class ConversationPage implements OnInit {
     return message.indexOf('vocal-message-header//') != -1;
   }
 
-  playAudio(message: string) {
+  playAudio(message: string, playButton: IonButton) {
+    playButton.el.innerText = 'Playing...';
     const obj = this.media.create(message.replace('vocal-message-header//', ''));
     obj.onSuccess.subscribe(res => {
       obj.release();
+      playButton.el.innerText = 'Play';
     });
     obj.play({ numberOfLoops: 1, playAudioWhenScreenIsLocked: false });
   }

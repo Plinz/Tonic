@@ -1,11 +1,10 @@
 <ion-header>
-  <ion-toolbar (click)="seeProfile()">
-    <ion-title *ngIf="user" style="cursor: pointer;">
+  <ion-toolbar class="new-background-color">
+    <ion-title *ngIf="user" (click)="seeProfile()" style="cursor: pointer;">
       {{user.displayName}}'s lists
     </ion-title>
   </ion-toolbar>
 </ion-header>
-
 
 <ion-content padding fulscreen>
   <ion-searchbar [(ngModel)]="query" (ionChange)="queryByName()"></ion-searchbar>

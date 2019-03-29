@@ -1,15 +1,13 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-row>
+<ion-header >
+  <ion-toolbar class="new-background-color">
+    <ion-row *ngIf="user" align-items-center>
       <ion-back-button></ion-back-button>
-      <ion-item *ngIf="user">
-        <ion-avatar slot="start">
-          <img [src]="user.photoURL">
-        </ion-avatar>
-        <ion-item slot="start">
-          {{user.displayName}}
-        </ion-item>
-      </ion-item>
+      <ion-avatar style="margin: 1px !important;">
+        <img [src]="user.photoURL">
+      </ion-avatar>
+      <ion-label>
+        {{user.displayName}}
+      </ion-label>
     </ion-row>
   </ion-toolbar>
 </ion-header>
@@ -25,7 +23,7 @@
   </ion-row>
   <ion-row center>
     <ion-col text-center>
-      <ion-button style="text-align:center;" (click)="logOut()"> Log out </ion-button>
+      <ion-button style="text-align:center;" (click)="logOut()">Log out</ion-button>
     </ion-col>
   </ion-row>
 </ion-content>

@@ -178,6 +178,7 @@ export const onDeleteList = functions.region('europe-west1').firestore
             }
         }
         await sendMessage(await findTokenFromUserList(subscribers), payload);
+        // Delete nested list items
         const collectionRef = snapshot.ref.firestore.collection('/todolists/' + context.params.listId + "/todoitems");
         await collectionRef.get().then((val) => {
             val.forEach(async doc => doc.ref.delete());

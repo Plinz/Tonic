@@ -1,9 +1,16 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>login</ion-title>
+  <ion-toolbar class="new-background-color">
+    <ion-title>Tonic</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
-    <ion-button expand="block" color="danger" (click)="googleLogin()">Google Login</ion-button>
+  <ion-row align-items-center justify-content-center>
+    <ion-img [src]="img" style="display: block; margin-left: auto; margin-right: auto; width: 60%; height: 60%;">
+    </ion-img>
+  </ion-row>
+  <ion-row align-items-center justify-content-center>
+    <ion-button color="danger" (click)="googleLogin()" style="margin-top: 20px;">
+      Google Login</ion-button>
+  </ion-row>
 </ion-content>

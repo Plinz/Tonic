@@ -30,7 +30,11 @@ export class FriendsPage implements OnInit {
   }
 
   queryByName() {
-    this.friendFinder.algolia_search_users(this.query, this.callback);
+    if(this.query !== ''){
+      this.friendFinder.algolia_search_users(this.query, this.callback);
+    } else{
+      this.friendsToSearch = [];
+    }
   }
 
   follow(id: string) {

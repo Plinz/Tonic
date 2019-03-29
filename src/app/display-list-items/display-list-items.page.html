@@ -1,59 +1,57 @@
-<ion-content padding>
-  <ion-card *ngIf="list">
-    <ion-card-header>
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            {{list.name}}
-          </ion-item>
-        </ion-col>
-        <ion-col>
-          <ion-item>
-            <ion-toggle *ngIf="list.owner == user.uid" (ionChange)="changeShared()" color="success"
-              [(ngModel)]="list.shared"></ion-toggle>
-            <ion-label padding-start>Shared</ion-label>
-          </ion-item>
-        </ion-col>
-        <ion-col>
-          <ion-fab horizontal="end" vertical="center">
-            <ion-button item-end (click)="presentPopover($event)">Open</ion-button>
-          </ion-fab>
-        </ion-col>
-      </ion-row>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-img *ngIf="list && list.photoURL" [src]="list.photoURL"></ion-img>
-      <ion-button *ngIf="list.owner == user.uid" (click)="uploadImage()">
-        Upload image
-      </ion-button>
-      <ion-list no-lines>
-        <ion-item-sliding *ngFor="let item of todos" #slidingItem>
-          <ion-item>
-            <ion-checkbox (click)="changeCheck(item)" color="success" [(ngModel)]="item.complete"></ion-checkbox>
-            <ion-label padding-start>{{item.name}} {{item.desc}}</ion-label>
-          </ion-item>
+<ion-header *ngIf="list">
+  <ion-toolbar class="new-background-color">
+    <ion-row align-items-center justify-content-center>
+      <ion-title>
+        {{list.name}}
+      </ion-title>
+      <ion-button item-end (click)="presentPopover($event)">Open</ion-button>
+    </ion-row>
+  </ion-toolbar>
+</ion-header>
 
-          <ion-item-options side="end">
-            <button ion-button color="primary" (click)="delete(item, slidingItem)">
-              <ion-icon name="text"></ion-icon>
-              Delete
-            </button>
-          </ion-item-options>
-          <ion-item-options side="start">
-            <button ion-button color="primary" (click)="edit(item, slidingItem)">
-              <ion-icon name="text"></ion-icon>
-              Edit
-            </button>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-list>
-      <ion-button *ngIf="!isSubscriber()" (click)="subscribeToList()">Subscribe to list</ion-button>
-      <ion-button *ngIf="isSubscriber()" (click)="unsubscribeFromList()">Unsubscribe from list</ion-button>
-    </ion-card-content>
-  </ion-card>
+<ion-content padding *ngIf="list">
+  <ion-img *ngIf="list && list.photoURL" [src]="list.photoURL"
+    style="display: block; margin-left: auto; margin-right: auto; width: 50%; height: 50%;"></ion-img>
+  <ion-button *ngIf="list.owner == user.uid" (click)="uploadImage()"
+    style="display: block; margin-left: auto; margin-right: auto;">
+    Upload image
+  </ion-button>
+  <ion-text color="dark">
+    <h1>List items :</h1>
+  </ion-text>
+  <ion-list no-lines>
+    <ion-item-sliding *ngFor="let item of todos" #slidingItem>
+      <ion-item>
+        <ion-checkbox (click)="changeCheck(item)" color="success" [(ngModel)]="item.complete"></ion-checkbox>
+        <ion-label padding-start>{{item.name}}</ion-label>
+      </ion-item>
+      <ion-item-options side="end">
+        <button ion-button color="primary" (click)="delete(item, slidingItem)">
+          <ion-icon name="text"></ion-icon>
+          Delete
+        </button>
+      </ion-item-options>
+      <ion-item-options side="start">
+        <button ion-button color="primary" (click)="edit(item, slidingItem)">
+          <ion-icon name="text"></ion-icon>
+          Edit
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+  <ion-button *ngIf="!isSubscriber()" (click)="subscribeToList()">Subscribe to list</ion-button>
+  <ion-button *ngIf="isSubscriber()" (click)="unsubscribeFromList()">Unsubscribe from list</ion-button>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="add()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 </ion-content>
+<ion-footer *ngIf="list && list.owner == user.uid">
+  <ion-row align-items-center justify-content-center>
+    <ion-item>
+      <ion-toggle (ionChange)="changeShared()" color="success" [(ngModel)]="list.shared"></ion-toggle>
+      <ion-label padding-start>Shared</ion-label>
+    </ion-item>
+  </ion-row>
+</ion-footer>

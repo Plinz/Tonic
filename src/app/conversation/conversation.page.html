@@ -1,28 +1,28 @@
-
 <ion-header>
-  <ion-toolbar>
-    <ion-item *ngIf="friend">
-      <ion-avatar slot="start">
+  <ion-toolbar class="new-background-color">
+    <ion-row *ngIf="friend" align-items-center>
+      <ion-back-button></ion-back-button>
+      <ion-avatar style="margin: 1px !important;">
         <img [src]="friend.photoURL">
       </ion-avatar>
-      <ion-item slot="start">
+      <ion-title>
         {{friend.displayName}}
-      </ion-item>
-    </ion-item>
+      </ion-title>
+    </ion-row>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding #contentIon>
 
   <div id="recordPopup" *ngIf="recording == true">
-    <ion-item>Recording ...</ion-item>
+    <ion-item>{{messageRecord}}</ion-item>
   </div>
   <ion-list no-lines class="msgbubble" *ngFor="let message of messages">
     <div class="innermsg left" *ngIf="isAudio(message.content) && message.sender === friend.uid">
-      <ion-button (click)="playAudio(message.content)">Play</ion-button>
+      <ion-button (click)="playAudio(message.content, playButton)" #playButton>Play</ion-button>
     </div>
     <div class="innermsg right" *ngIf="isAudio(message.content) && message.sender != friend.uid">
-      <ion-button (click)="playAudio(message.content)">Play</ion-button>
+      <ion-button (click)="playAudio(message.content, playButton)" #playButton>Play</ion-button>
     </div>
     <div class="innermsg left" *ngIf="!isAudio(message.content) && message.sender === friend.uid">
       {{ message.content }}
@@ -35,15 +35,17 @@
 
 <ion-footer>
   <ion-item>
-    <ion-input [(ngModel)]=content clearInput placeholder="Your message" #msgInput></ion-input>
-    <ion-button slot="end" shape="round" (click)=sendMessage()>
-      <ion-icon name="send"></ion-icon>
-    </ion-button>
-    <ion-button slot="end" shape="round" (click)=startMic()>
+    <ion-button slot="start" shape="round" (touchstart)="startRecording($event)" (touchend)="endRecording($event)"
+      (touchmove)="onTouchMove($event)" style="margin:1px !important; width: 50px; height: 50px;">
       <ion-icon name="mic"></ion-icon>
     </ion-button>
-    <ion-button (touchstart)="startRecording($event)" (touchend)="endRecording($event)">
-      <ion-icon name="chatboxes"></ion-icon>
+    <ion-input [(ngModel)]=content clearInput placeholder="Your message" #msgInput></ion-input>
+    <ion-button slot="end" shape="round" (click)=sendMessage()
+      style="margin:1px !important; width: 50px; height: 50px;">
+      <ion-icon name="send"></ion-icon>
+    </ion-button>
+    <ion-button slot="end" shape="round" (click)=startMic() style="margin:1px !important; width: 50px; height: 50px;">
+      <ion-icon name="text"></ion-icon>
     </ion-button>
   </ion-item>
 </ion-footer>

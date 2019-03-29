@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {GoogleAuthService} from '../service/google-auth-service/google-auth-service';
+import { GoogleAuthService } from '../service/google-auth-service/google-auth-service';
 
 @Component({
   selector: 'app-login',
@@ -8,12 +8,14 @@ import {GoogleAuthService} from '../service/google-auth-service/google-auth-serv
 })
 export class LoginPage implements OnInit {
 
+  private img = '../../assets/drop-2023258_1280.png';
+
   constructor(private googleAuth: GoogleAuthService) { }
 
   ngOnInit() {
   }
 
-  googleLogin(){
+  googleLogin() {
     this.googleAuth.googleLogin();
   }
 
