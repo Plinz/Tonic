@@ -5,29 +5,31 @@ Application Ionic de Todo List
 * SSO Google
 * Stockage Firebase
 * Liste :
+  * Création de listes
   * Créer un QRCode permettant de copier une liste d'un utilisateur à un autre
-  * Créer une nouvelle liste
+  * Copier une liste
     * Depuis un QRCode
+    * En appuyant sur un bouton dans la liste correspondante
   * Supprimer une liste (Uniquement si on est proriétaire de la liste)
   * Editer une liste (Changer le nom, uniquement si on est proriétaire de la liste)
-  * Ajout d'items (Uniquement si on est proriétaire de la liste)
-  
-  * Suppression d'item (Uniquement si on est proriétaire de la liste)
+  * Ajout d'items 
+  * Suppression d'item 
   * Edition d'item
-      * Changer le nom de l'item (Uniquement si on est proriétaire de la liste)
-      * Changer l'état de l'item (Si la liste est public tout le monde peut changer l'état, sinon uniquement le propriétaire)
+      * Changer le nom de l'item 
+      * Changer l'état de l'item (Si la liste est publique tout le monde peut changer l'état, sinon uniquement le propriétaire)
   * Ajout/Modification d'une photo (Uniquement si on est proriétaire de la liste)
     * Depuis la gallerie
     * Depuis l'appareil photo
   * Rendre la liste publique (Uniquement si on est proriétaire de la liste)
-  * Rendre la liste privé (Uniquement si on est proriétaire de la liste)
+  * Rendre la liste privée (Uniquement si on est proriétaire de la liste)
   * S'abonner/desabonner à une liste publique
- * Utilisateur :
+* Utilisateur :
   * Suivre un utilisateur
   * Ne plus suivre un utilisateur
   * Envoyer un message privé à un utilisateur :
     * Reconnaissance vocale du message
- * Recherche (Algolia):
+    * Message vocal
+* Recherche (Algolia):
   * Recherche de liste par nom 
   * Recherche d'utilisateur par nom et email
 * Publicité
@@ -36,11 +38,25 @@ Application Ionic de Todo List
   * Au changement de nom d'une liste sur laquelle on est abonné
   * Au changement d'état d'un item d'une liste sur laquelle on est abonné
   * Au changement de nom d'un item d'une liste sur laquelle on est abonné
-  * A la suppression d'un item d'une liste sur laquelle on est abonné
   * Au partage en public d'une liste d'un utilisateur que l'on suit
+  
+  
+## Recherche de listes/d'utilisateurs et Algolia
+
+https://www.algolia.com/
+
+Pour effectuer la recherche sur une liste ou des utilisateurs, nous utilisons le service Algolia qui est un "Search As A Service". Nous avons crée des indexs sur Algolia nous permettant d'effectuer une recherche d'utilisateurs en fonction de leur nom ou de leur adresse e-mail (du nom pour les listes), à la manière d'un LIKE avec SQL. Lorsque nous créons une liste ou un utilisateur (suppression / modification aussi), nous créons une nouvelle entrée sur Algolia aussi. Nous aurions pu effectuer une recherche en full front-end (en filtrant les résultats), cependant nous avons trouvé intéressant de nous exercer avec un service tiers (français qui plus est).
+
 ## La liste des fonctionnalitées dont l’implémentation a échoué et la cause
-Partage de listes privée
-Cause : 
+
+Choix du mode de stockage des items dans les listes sur Firestore :
+
+Plusieurs choix se sont proposés à nous : stocker les items dans une collection imbriquée, ou les stocker dans un array dans le document de la liste. Le premier choix a finalement été retenu. La première méthode permet d'avoir une meilleur scalabilité : en effet, la taille des documents étant limitée, la seconde méthode serait inadaptée dans le cas où une liste aurait énormément d'items. Cependant, il a été complexe de récupérer les items stockés sous forme de collection imbriquée dans les listes sans que l'IHM n'en soit impactée. Ce problème a été répété dans plusieurs cas différents : pour gérer les personnes abonnées à une liste ainsi que les followers d'une personne. Par facilité, les followers ainsi que les subscribers d'une liste sont stockés sous forme d'array dans leurs documents (respectivement user/{id} et todolists/{listid}).
+
+Partage de listes privées :
+
+N'a pas été implémenté pour les mêmes raisons qu'au dessus : comment stocker les personnes autorisées à accéder à la liste.
+
 ## Le mode opératoire pour la compilation du projet et son déploiement sur mobile
 
 ### Compiler et déployer sur mobile
@@ -50,7 +66,7 @@ Cause :
 git clone https://github.com/Plinz/Tonic.git
 ```
 
-* Dans le projet installer les dépendances
+* Dans le projet installer les dépendences
  ```sh
 cd Tonic
 npm install
@@ -95,7 +111,7 @@ BUILD FAILED in 17s
 [ERROR] An error occurred while running subprocess cordova.
 ```
 
-Cette erreur est dû au sdk d'android, vérifiez votre variable d'environnement ANDROID_HOME, le dossier pointé doit contenir un dossier 'tools' avec des binaires à l'intérieur.
+Cette erreur est dûe au sdk d'android, vérifiez votre variable d'environnement ANDROID_HOME, le dossier pointé doit contenir un dossier 'tools' avec des binaires à l'intérieur.
 Pour moi j'ai du changer ANDROID_HOME de /usr/lib/android_sdk/ à ~/Android/Sdk.
 
 #### Login impossible (le bouton ne fait rien)
@@ -112,7 +128,7 @@ ionic cordova run android --device
 
 #### Failed to deploy to device, no devices found.
 
-Le l'appareil mobile n'a pas été détecté. Vérifier que vous avez bien branché l'appareil avec un cable USB permettant le transfert de données. Vérifier que vous avez choisi le mode de conneion USB : MTP sur l'appareil mobile et non Charger uniquement. Vérifiez que vous avez activer l'option Débogage USB. Vérifier que vous avez bien accepter l'empreinte numérique de n'ordinateur.
+L'appareil mobile n'a pas été détecté. Vérifiez que vous avez bien branché l'appareil avec un cable USB permettant le transfert de données. Vérifiez que vous avez choisi le mode de connexion USB : MTP sur l'appareil mobile et non Charger uniquement. Vérifiez que vous avez activé l'option Débogage USB. Vérifiez que vous avez bien accepté l'empreinte numérique de l'ordinateur.
 
 #### adb: Command failed with exit code 1 Error output:
 
@@ -121,7 +137,7 @@ adb: Command failed with exit code 1 Error output:
 error: protocol fault (couldn't read status): Connection reset by peer
 ```
 
-Vérifier que vous avez choisi le mode de conneion USB : MTP sur l'appareil mobile et non Charger uniquement. Vérifiez que vous avez activer l'option Débogage USB.
+Vérifiez que vous avez choisi le mode de connedion USB : MTP sur l'appareil mobile et non Charger uniquement. Vérifiez que vous avez activé l'option Débogage USB.
 
 #### Crash de l'appli si on choisit d'ajouter une photo de la gallery dans une liste
 
