@@ -4,7 +4,9 @@
       <ion-title>
         {{list.name}}
       </ion-title>
-      <ion-button item-end (click)="presentPopover($event)">Open</ion-button>
+      <ion-button item-end (click)="presentPopover($event)">
+        <ion-icon name="list"></ion-icon>
+      </ion-button>
     </ion-row>
   </ion-toolbar>
 </ion-header>
@@ -12,10 +14,12 @@
 <ion-content padding *ngIf="list">
   <ion-img *ngIf="list && list.photoURL" [src]="list.photoURL"
     style="display: block; margin-left: auto; margin-right: auto; width: 50%; height: 50%;"></ion-img>
-  <ion-button *ngIf="list.owner == user.uid" (click)="uploadImage()"
-    style="display: block; margin-left: auto; margin-right: auto;">
-    Upload image
-  </ion-button>
+  <ion-row align-items-center justify-content-center>
+    <ion-button *ngIf="list.owner == user.uid" (click)="uploadImage()"
+      style="display: block; margin-left: auto; margin-right: auto;">
+      Upload image
+    </ion-button>
+  </ion-row>
   <ion-text color="dark">
     <h1>List items :</h1>
   </ion-text>
@@ -26,21 +30,21 @@
         <ion-label padding-start>{{item.name}}</ion-label>
       </ion-item>
       <ion-item-options side="end">
-        <button ion-button color="primary" (click)="delete(item, slidingItem)">
-          <ion-icon name="text"></ion-icon>
+        <ion-button ion-button color="danger" (click)="delete(item, slidingItem)">
           Delete
-        </button>
+        </ion-button>
       </ion-item-options>
       <ion-item-options side="start">
-        <button ion-button color="primary" (click)="edit(item, slidingItem)">
-          <ion-icon name="text"></ion-icon>
+        <ion-button color="primary" (click)="edit(item, slidingItem)">
           Edit
-        </button>
+        </ion-button>
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>
-  <ion-button *ngIf="!isSubscriber()" (click)="subscribeToList()">Subscribe to list</ion-button>
-  <ion-button *ngIf="isSubscriber()" (click)="unsubscribeFromList()">Unsubscribe from list</ion-button>
+  <ion-row align-items-center justify-content-center>
+    <ion-button *ngIf="!isSubscriber()" (click)="subscribeToList()">Subscribe to list</ion-button>
+    <ion-button *ngIf="isSubscriber()" (click)="unsubscribeFromList()">Unsubscribe from list</ion-button>
+  </ion-row>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="add()">
       <ion-icon name="add"></ion-icon>

@@ -3,6 +3,7 @@ import { TodoServiceProvider } from 'src/app/service/todo-service/todo-service.s
 import { ModalController, NavParams } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { TodoList, TodoItem } from 'src/app/domain/todo';
+import { FullMapModalComponent } from '../full-map-modal/full-map-modal.page';
 
 @Component({
     templateUrl: './popover.html',
@@ -34,4 +35,17 @@ export class PopoverComponent {
     copyList() {
         this.todoServiceProvider.copyListByID(this.list.uuid);
     }
+
+    async seeMap() {
+        const modal: HTMLIonModalElement =
+            await this.modalController.create({
+                component: FullMapModalComponent,
+                componentProps: {
+                    id: this.list.uuid
+                }
+            });
+        await modal.present();
+
+    }
+
 }

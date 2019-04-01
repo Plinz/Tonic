@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TodoServiceProvider } from 'src/app/service/todo-service/todo-service.service';
-import { ModalController, NavParams } from '@ionic/angular';
+import { ModalController, NavParams, LoadingController } from '@ionic/angular';
 import { TodoItem, TodoList } from 'src/app/domain/todo';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import * as leaflet from 'leaflet';
@@ -24,7 +24,8 @@ export class ModalListItemComponent {
   constructor(private todoServiceProvider: TodoServiceProvider,
     public modalController: ModalController,
     private navParams: NavParams,
-    private geolocation: Geolocation
+    private geolocation: Geolocation,
+    private loading: LoadingController
   ) { }
 
   ionViewWillEnter() {
@@ -55,13 +56,15 @@ export class ModalListItemComponent {
     await this.modalController.dismiss();
   }
 
-  getGeoloc() {
+  async getGeoloc() {
     var options = {
       enableHighAccuracy: true,
       timeout: 5000,
       maximumAge: 0
     };
-    this.geolocation.getCurrentPosition(options).then((resp) => {
+    const loader = await this.loading.create({message: 'Retrieving your location !'});
+    await loader.present();
+    this.geolocation.getCurrentPosition(options).then(async (resp) => {
       this.geoloc = [resp.coords.latitude, resp.coords.longitude];
       if (this.marker)
         this.marker.setLatLng(new leaflet.LatLng(this.geoloc[0], this.geoloc[1]));
@@ -69,9 +72,11 @@ export class ModalListItemComponent {
         this.marker = leaflet.marker([this.geoloc[0], this.geoloc[1]]);
         this.marker.addTo(this.map).addTo(this.map);
       }
+      await loader.dismiss();
       this.map.flyTo([this.geoloc[0], this.geoloc[1]], 16);
 
-    }).catch((error) => {
+    }).catch(async (error) => {
+      await loader.dismiss();
       alert('Error getting location');
     });
   }

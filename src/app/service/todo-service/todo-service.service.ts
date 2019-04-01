@@ -155,7 +155,7 @@ export class TodoServiceProvider {
   }
 
   public async copyListByID(listID: string) {
-    const loading = await this.loadingController.create();
+    const loading = await this.loadingController.create({message: 'Copying your list !'});
     await loading.present();
     const list = await this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', listID).limit(1)).valueChanges().map(vendors => vendors[0]).first().toPromise();
     const items = await this.itemsCollection.doc(listID).collection<TodoItem>('todoitems').valueChanges().first().toPromise();
@@ -179,7 +179,7 @@ export class TodoServiceProvider {
   }
 
   public async copyList(list: TodoList, items: TodoItem[]) {
-    const loading = await this.loadingController.create();
+    const loading = await this.loadingController.create({message: 'Copying your list !'});
     await loading.present();
     const duplicateList: TodoList = JSON.parse(JSON.stringify(list));
     const duplicateItems: TodoItem[] = JSON.parse(JSON.stringify(items));

@@ -134,7 +134,7 @@ export class DisplayListItemsPage implements OnInit {
         }, {
           text: 'Gallery',
           handler: async () => {
-            this.imageService.findPic(this.list.uuid);
+            await this.imageService.findPic(this.list.uuid);
           }
         }
       ]

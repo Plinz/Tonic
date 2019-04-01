@@ -1,8 +1,13 @@
 <ion-header>
   <ion-toolbar class="new-background-color">
-    <ion-title *ngIf="user" (click)="seeProfile()" style="cursor: pointer;">
-      {{user.displayName}}'s lists
-    </ion-title>
+    <ion-row *ngIf="user" align-items-center>
+      <ion-avatar (click)="seeProfile()" style="margin: 1px !important;cursor: pointer;">
+        <img [src]="user.photoURL">
+      </ion-avatar>
+      <ion-title (click)="seeProfile()" style="cursor: pointer;">
+        {{user.displayName}}'s lists
+      </ion-title>
+    </ion-row>
   </ion-toolbar>
 </ion-header>
 
@@ -14,16 +19,15 @@
         not
         finished !</ion-item>
       <ion-item-options side="end">
-        <button ion-button color="primary" (click)="delete(item, slidingItem)">
-          <ion-icon name="text"></ion-icon>
+        <ion-button ion-button color="danger" (click)="delete(item, slidingItem)">
+
           Delete
-        </button>
+        </ion-button>
       </ion-item-options>
       <ion-item-options side="start">
-        <button ion-button color="primary" (click)="edit(item, slidingItem)">
-          <ion-icon name="text"></ion-icon>
+        <ion-button color="primary" (click)="edit(item, slidingItem)">
           Edit
-        </button>
+        </ion-button>
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>

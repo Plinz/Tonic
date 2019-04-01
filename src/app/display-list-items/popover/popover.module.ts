@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 // The modal's component of the previous chapter
 import { PopoverComponent } from './popover.component';
+import { FullMapModalModule } from '../full-map-modal/full-map-modal.module';
 
 @NgModule({
     declarations: [
@@ -13,7 +14,8 @@ import { PopoverComponent } from './popover.component';
     imports: [
         IonicModule,
         CommonModule,
-        FormsModule
+        FormsModule,
+        FullMapModalModule
     ],
     entryComponents: [
         PopoverComponent

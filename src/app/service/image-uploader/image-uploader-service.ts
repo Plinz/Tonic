@@ -4,6 +4,7 @@ import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { AngularFireStorage } from '@angular/fire/storage'
 import { TodoServiceProvider } from '../todo-service/todo-service.service';
 import { FriendFinderService } from '../friend-finder/friend-finder.service';
+import { LoadingController } from '@ionic/angular';
 
 @Injectable({
     providedIn: 'root',
@@ -14,7 +15,8 @@ export class ImageUploaderService {
         private camera: Camera,
         private afs: AngularFireStorage,
         private todoService: TodoServiceProvider,
-        private friendFinder: FriendFinderService
+        private friendFinder: FriendFinderService,
+        private loading: LoadingController
     ) {
     }
 
@@ -37,37 +39,31 @@ export class ImageUploaderService {
         this.camera.getPicture(options).then((imageData) => {
             let base64Image = imageData;
             this.uploadImage(base64Image, listID);
-        }, (err) => {
         });
     }
 
     async uploadImage(image: string, listID) {
+        const loader = await this.loading.create({message: 'Uploading your image !'});
+        await loader.present();
         const storageRef = this.afs.storage.ref();
         const imageRef = storageRef.child('image').child(listID).child('mainImage.jpeg');
         const metadata = {
             contentType: 'image/jpeg',
         };
+
         imageRef.putString(image, 'base64', metadata).then(async (res) => {
             this.todoService.editDownloadURL(listID, await imageRef.getDownloadURL());
+        }).finally(() => {
+            loader.dismiss();
         });
     }
 
-    async uploadAudio(audioFile: string, conversationID, fileName, friendID){
+    async uploadAudio(audioFile: string, conversationID, fileName, friendID) {
         const storageRef = this.afs.storage.ref();
         const audioRef = storageRef.child('audio').child(conversationID).child(fileName);
-        const metadata = {
-            contentType: 'audio/aac',
-        };
-        audioRef.putString(audioFile,'data_url').then(async (res) => {
-            this.friendFinder.sendMessage(friendID,'vocal-message-header//'+ (await audioRef.getDownloadURL()));
+        audioRef.putString(audioFile, 'data_url').then(async (res) => {
+            this.friendFinder.sendMessage(friendID, 'vocal-message-header//' + (await audioRef.getDownloadURL()));
         });
-
-    }
-
-    getImage(listID): any {
-        let storageRef = this.afs.storage.ref();
-        let imageRef = storageRef.child('image').child(listID).child('mainImage.jpeg');
-        return imageRef.getDownloadURL();
     }
 
 }

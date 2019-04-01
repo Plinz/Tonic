@@ -151,10 +151,7 @@ export class ListDisplayPage implements OnInit {
 
   scanQR() {
     this.barcodeScanner.scan().then(barcodeData => {
-      const list: TodoList = JSON.parse(barcodeData.text);
-      this.todoServiceProvider.copyListByID(list.uuid);
-    }).catch(err => {
-      console.log('Error', err);
+      this.todoServiceProvider.copyListByID(barcodeData.text);
     });
   }
 }

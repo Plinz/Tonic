@@ -6,12 +6,18 @@ import { NavController } from '@ionic/angular';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private auth: GoogleAuthService, private router: NavController) { }
+
+
+  constructor(private auth: GoogleAuthService, private router: NavController) {
+
+  }
+
+
 
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): boolean {
-    if(!this.auth.user) {
+    if (!this.auth.isAuthenticated()) {
       this.router.navigateRoot('');
       return false;
     }

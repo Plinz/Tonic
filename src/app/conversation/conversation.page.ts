@@ -20,7 +20,7 @@ export class ConversationPage implements OnInit {
   private conversationID;
   private recording: boolean;
   private initialEventPosY;
-  private messageRecord = "Recording : Pan up to cancel, release your finger to validate.";
+  private messageRecord = "Recording : Move up to cancel, release to validate.";
   @ViewChild('msgInput') msgInput;
   @ViewChild('contentIon') contentIon: IonContent;
 
@@ -96,7 +96,7 @@ export class ConversationPage implements OnInit {
   }
 
   startRecording(event) {
-    this.messageRecord = "Recording : Pan up to cancel, release your finger to validate.";
+    this.messageRecord = "Recording : Move up to cancel, release to validate.";
     this.initialEventPosY = event.targetTouches[0].clientY;
     const filePath = this.file.externalDataDirectory + 'record.aac';
     this.mediaObject = this.media.create(filePath);
@@ -122,7 +122,7 @@ export class ConversationPage implements OnInit {
       this.messageRecord = 'Release your finger to cancel recording';
     }
     else {
-      this.messageRecord = "Recording : Pan up to cancel, release your finger to validate.";
+      this.messageRecord = "Recording : Move up to cancel, release to validate.";
     }
   }
 

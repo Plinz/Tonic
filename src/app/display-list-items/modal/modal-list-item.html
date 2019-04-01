@@ -1,17 +1,32 @@
-<ion-list>
-    <ion-item>
-        <ion-label color="primary" floating>Item name</ion-label>
-        <ion-input [(ngModel)]="itemName"></ion-input>
-    </ion-item>
-    <ion-item>
-        <ion-label color="primary" floating>Description</ion-label>
-        <ion-input [(ngModel)]="itemDescription"></ion-input>
-    </ion-item>
-    <ion-item>
-        <ion-label color="primary" floating>Geolocation</ion-label>
+<ion-header>
+    <ion-toolbar class="new-background-color">
+        <ion-row>
+            <ion-button (click)="myDismiss()">
+                <ion-icon name="arrow-round-back"></ion-icon>
+            </ion-button>
+            <ion-title>Edit item</ion-title>
+        </ion-row>
+    </ion-toolbar>
+</ion-header>
+<ion-item>
+    <ion-label color="primary" position="floating">Item name</ion-label>
+    <ion-input [(ngModel)]="itemName"></ion-input>
+</ion-item>
+<ion-item>
+    <ion-label color="primary" position="floating">Description</ion-label>
+    <ion-input [(ngModel)]="itemDescription"></ion-input>
+</ion-item>
+<ion-item>
+    <ion-row>
+        <ion-label color="primary">Geolocation :
+        </ion-label>
         <ion-label color="primary" *ngIf="geoloc">{{geoloc[0]}} {{geoloc[1]}}</ion-label>
-    </ion-item>
-    <ion-button (click)="getGeoloc()">Geolocalisate</ion-button>
+        <ion-button (click)="getGeoloc()">Geolocalisate</ion-button>
+    </ion-row>
+</ion-item>
+
+<ion-row align-items-center justify-content-center>
+    <ion-button color="danger" (click)="myDismiss()">Cancel</ion-button>
     <ion-button (click)="add()">Add item</ion-button>
-</ion-list>
+</ion-row>
 <div id="map" style="width:100%; height:100%;"></div>
