@@ -1,6 +1,21 @@
 # Tonic
 Application Ionic de Todo List
 
+## Fonctionnalités supplémentaires en bref (en plus de celles imposées):
+ * Géolocalisation
+ * Copie de listes
+ * Notifications
+ * Tchat
+ * Reconnaissance vocale
+ * Utilisation du micro du portable pour envoyer des messages vocaux
+ * Utilisation des QRCodes (encodage/décodage)
+ * Recherche en utilisant un back-end "Software As A Service" (Algolia)
+ * Listes partagées
+ * Publicité
+ 
+10 fonctionnalités
+
+
 ## La liste exhaustive des fonctionnalitées implémentées
 * SSO Google
 * Stockage Firebase
@@ -26,10 +41,10 @@ Application Ionic de Todo List
 * Utilisateur :
   * Suivre un utilisateur
   * Ne plus suivre un utilisateur
-  * Envoyer un message privé à un utilisateur :
+  * Envoyer un message privé à un utilisateur (Tchat) :
     * Reconnaissance vocale du message
     * Message vocal
-* Recherche (Algolia):
+* Recherche (Algolia) :
   * Recherche de liste par nom 
   * Recherche d'utilisateur par nom et email
 * Publicité
@@ -39,6 +54,10 @@ Application Ionic de Todo List
   * Au changement d'état d'un item d'une liste sur laquelle on est abonné
   * Au changement de nom d'un item d'une liste sur laquelle on est abonné
   * Au partage en public d'une liste d'un utilisateur que l'on suit
+* Geolocalisation (Leaflet) :
+  * Possibilité de géolocaliser un item en utilisant le service de géolocalisation du téléphone
+  * Possibilité de mettre une géolocalisation personnalisée sur un item en cliquant sur une carte
+  * Affichage sur une carte de la position des items géolocalisés d'une liste
   
   
 ## Recherche de listes/d'utilisateurs et Algolia
