@@ -25,6 +25,7 @@ export class ImageUploaderService {
             if (res && res[0]) {
                 this.uploadImage(res[0].replace("data:image/jpeg;base64,", ""), listID);
             }
+        }, (error) => {
         });
     }
 
@@ -39,11 +40,12 @@ export class ImageUploaderService {
         this.camera.getPicture(options).then((imageData) => {
             let base64Image = imageData;
             this.uploadImage(base64Image, listID);
+        }, (error) => {
         });
     }
 
     async uploadImage(image: string, listID) {
-        const loader = await this.loading.create({message: 'Uploading your image !'});
+        const loader = await this.loading.create({ message: 'Uploading your image !' });
         await loader.present();
         const storageRef = this.afs.storage.ref();
         const imageRef = storageRef.child('image').child(listID).child('mainImage.jpeg');

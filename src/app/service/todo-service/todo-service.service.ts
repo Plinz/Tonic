@@ -124,7 +124,7 @@ export class TodoServiceProvider {
 
   public addTodo(list: TodoList, itemName: string, itemDescription: string, geoloc: number[]) {
     let newTodo: TodoItem = { uuid: this.afs.createId(), name: itemName, desc: itemDescription, complete: false };
-    if(geoloc){
+    if (geoloc) {
       newTodo.geoloc = geoloc;
     }
     this.itemsCollection.doc(list.uuid).collection('todoitems').doc(newTodo.uuid).set(newTodo);
@@ -155,50 +155,30 @@ export class TodoServiceProvider {
   }
 
   public async copyListByID(listID: string) {
-    const loading = await this.loadingController.create({message: 'Copying your list !'});
+    const loading = await this.loadingController.create({ message: 'Copying your list !' });
     await loading.present();
     const list = await this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', listID).limit(1)).valueChanges().map(vendors => vendors[0]).first().toPromise();
-    const items = await this.itemsCollection.doc(listID).collection<TodoItem>('todoitems').valueChanges().first().toPromise();
-    const newList: TodoList = {
-      uuid: this.afs.createId(),
-      name: list.name,
-      nbNotFinished: 0,
-      shared: false,
-      owner: this.user.uid,
-      items: [],
-      subscribers: []
-    };
-    const baseRef = this.afs.collection('todolists');
-    const batch = this.afs.firestore.batch();
-    batch.set(baseRef.doc(newList.uuid).ref, newList);
-    for (const item of items) {
-      batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
+    if (list) {
+      const items = await this.itemsCollection.doc(listID).collection<TodoItem>('todoitems').valueChanges().first().toPromise();
+      const newList: TodoList = {
+        uuid: this.afs.createId(),
+        name: list.name,
+        nbNotFinished: 0,
+        shared: false,
+        owner: this.user.uid,
+        items: [],
+        subscribers: []
+      };
+      const baseRef = this.afs.collection('todolists');
+      const batch = this.afs.firestore.batch();
+      batch.set(baseRef.doc(newList.uuid).ref, newList);
+      for (const item of items) {
+        batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
+      }
+      await batch.commit();
     }
-    await batch.commit();
     await loading.dismiss();
+
   }
 
-  public async copyList(list: TodoList, items: TodoItem[]) {
-    const loading = await this.loadingController.create({message: 'Copying your list !'});
-    await loading.present();
-    const duplicateList: TodoList = JSON.parse(JSON.stringify(list));
-    const duplicateItems: TodoItem[] = JSON.parse(JSON.stringify(items));
-    const newList: TodoList = {
-      uuid: this.afs.createId(),
-      name: duplicateList.name,
-      nbNotFinished: 0,
-      shared: false,
-      owner: this.user.uid,
-      items: [],
-      subscribers: []
-    };
-    const baseRef = this.afs.collection('todolists');
-    const batch = this.afs.firestore.batch();
-    batch.set(baseRef.doc(newList.uuid).ref, newList);
-    for (const item of duplicateItems) {
-      batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
-    }
-    await batch.commit();
-    await loading.dismiss();
-  }
 } 

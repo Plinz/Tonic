@@ -39,13 +39,13 @@ export class ConversationPage implements OnInit {
     this.friendFinder.retrieveConversation(friendID).subscribe((res) => {
       this.messages = res.reverse();
       let that = this;
-      setTimeout(() => { that.contentIon.scrollToBottom(); }, 200);
+      setTimeout(() => { that.contentIon.scrollToBottom().catch(); }, 200);
     });
     this.conversationID = this.friendFinder.retrieveConversationID(friendID);
   }
 
   ngOnInit() {
-    this.contentIon.scrollToBottom();
+    this.contentIon.scrollToBottom().catch();
   }
 
   recognition() {
@@ -132,10 +132,12 @@ export class ConversationPage implements OnInit {
 
   playAudio(message: string, playButton: IonButton) {
     playButton.el.innerText = 'Playing...';
+    (<HTMLInputElement>playButton.el).disabled = true;
     const obj = this.media.create(message.replace('vocal-message-header//', ''));
     obj.onSuccess.subscribe(res => {
       obj.release();
       playButton.el.innerText = 'Play';
+      (<HTMLInputElement>playButton.el).disabled = false;
     });
     obj.play({ numberOfLoops: 1, playAudioWhenScreenIsLocked: false });
   }

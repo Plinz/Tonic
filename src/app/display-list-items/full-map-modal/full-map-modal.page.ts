@@ -16,7 +16,7 @@ export class FullMapModalComponent {
   dicoMarker = {};
 
   firefoxIcon = leaflet.icon({
-    iconUrl: '../../assets/location-marker-svgrepo-com.svg',
+    iconUrl: '../../../assets/location-marker-svgrepo-com.svg',
     iconSize: [38, 95], // size of the icon
   });
 

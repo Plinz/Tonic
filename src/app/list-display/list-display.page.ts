@@ -151,7 +151,11 @@ export class ListDisplayPage implements OnInit {
 
   scanQR() {
     this.barcodeScanner.scan().then(barcodeData => {
-      this.todoServiceProvider.copyListByID(barcodeData.text);
-    });
+      if (barcodeData.text !== '') {
+        this.todoServiceProvider.copyListByID(barcodeData.text);
+      }
+    },
+      (error) => {
+      });
   }
 }
