@@ -110,6 +110,19 @@ cordova clean
 ionic cordova run android --device
 ```
 
+#### Failed to deploy to device, no devices found.
+
+Le l'appareil mobile n'a pas été détecté. Vérifier que vous avez bien branché l'appareil avec un cable USB permettant le transfert de données. Vérifier que vous avez choisi le mode de conneion USB : MTP sur l'appareil mobile et non Charger uniquement. Vérifiez que vous avez activer l'option Débogage USB. Vérifier que vous avez bien accepter l'empreinte numérique de n'ordinateur.
+
+#### adb: Command failed with exit code 1 Error output:
+
+ ```sh
+adb: Command failed with exit code 1 Error output:
+error: protocol fault (couldn't read status): Connection reset by peer
+```
+
+Vérifier que vous avez choisi le mode de conneion USB : MTP sur l'appareil mobile et non Charger uniquement. Vérifiez que vous avez activer l'option Débogage USB.
+
 #### Crash de l'appli si on choisit d'ajouter une photo de la gallery dans une liste
 
 Modifiez ces lignes du fichier de configuration platforms/android/project.properties 
