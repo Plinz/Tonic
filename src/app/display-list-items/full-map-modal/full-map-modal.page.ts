@@ -44,7 +44,7 @@ export class FullMapModalComponent {
           if (this.dicoMarker[item.uuid]) {
             this.dicoMarker[item.uuid].setLatLng(new leaflet.LatLng(item.geoloc[0], item.geoloc[1]));
           } else {
-            this.dicoMarker[item.uuid] = leaflet.marker([item.geoloc[0], item.geoloc[1]], { icon: this.firefoxIcon });;
+            this.dicoMarker[item.uuid] = leaflet.marker([item.geoloc[0], item.geoloc[1]], { icon: this.firefoxIcon }).bindTooltip(item.name);
             this.dicoMarker[item.uuid].addTo(this.map);
           }
         }
