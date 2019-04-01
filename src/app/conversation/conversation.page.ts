@@ -39,13 +39,13 @@ export class ConversationPage implements OnInit {
     this.friendFinder.retrieveConversation(friendID).subscribe((res) => {
       this.messages = res.reverse();
       let that = this;
-      setTimeout(() => { that.contentIon.scrollToBottom().catch(); }, 200);
+      setTimeout(() => { that.contentIon.scrollToBottom().catch((error) => { }); }, 200);
     });
     this.conversationID = this.friendFinder.retrieveConversationID(friendID);
   }
 
   ngOnInit() {
-    this.contentIon.scrollToBottom().catch();
+    this.contentIon.scrollToBottom().catch((error) => { });
   }
 
   recognition() {
