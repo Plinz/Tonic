@@ -110,6 +110,10 @@ cordova clean
 ionic cordova run android --device
 ```
 
+#### Failed to deploy to device, no devices found.
+
+Le l'appareil mobile n'a pas été détecté. Vérifier que vous avez bien branché l'appareil avec un cable USB permettant le transfert de données. Vérifiez que vous avez activer l'option Débogage USB.
+
 #### Crash de l'appli si on choisit d'ajouter une photo de la gallery dans une liste
 
 Modifiez ces lignes du fichier de configuration platforms/android/project.properties 
