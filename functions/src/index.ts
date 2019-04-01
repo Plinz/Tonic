@@ -246,10 +246,17 @@ export const onMessageCreated = functions.region('europe-west1').firestore
                     doc => senderName = doc.data().displayName
                 );
             });
+
+        const title = 'New message from ' + senderName + ' !';
+        let body = message.content;
+        if(message.content.indexOf('vocal-message-header//') !== -1) {
+            body = 'New voice message !';
+        }
+        
         const payload = {
             notification: {
-                title: 'New message from ' + senderName + ' !',
-                body: message.content
+                title,
+                body
             }
         }
         await sendMessage(await findTokenFromUserList(message.receivers), payload);
