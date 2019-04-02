@@ -157,28 +157,33 @@ export class TodoServiceProvider {
   public async copyListByID(listID: string) {
     const loading = await this.loadingController.create({ message: 'Copying your list !' });
     await loading.present();
-    const list = await this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', listID).limit(1)).valueChanges().map(vendors => vendors[0]).first().toPromise();
-    if (list) {
-      const items = await this.itemsCollection.doc(listID).collection<TodoItem>('todoitems').valueChanges().first().toPromise();
-      const newList: TodoList = {
-        uuid: this.afs.createId(),
-        name: list.name,
-        nbNotFinished: 0,
-        shared: false,
-        owner: this.user.uid,
-        items: [],
-        subscribers: []
-      };
-      const baseRef = this.afs.collection('todolists');
-      const batch = this.afs.firestore.batch();
-      batch.set(baseRef.doc(newList.uuid).ref, newList);
-      for (const item of items) {
-        batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
+    try {
+      const list = await this.afs.collection<TodoList>('todolists', ref => ref.where('uuid', '==', listID).limit(1)).valueChanges().map(vendors => vendors[0]).first().toPromise();
+      if (list) {
+        const items = await this.itemsCollection.doc(listID).collection<TodoItem>('todoitems').valueChanges().first().toPromise();
+        const newList: TodoList = {
+          uuid: this.afs.createId(),
+          name: list.name,
+          nbNotFinished: 0,
+          shared: false,
+          owner: this.user.uid,
+          items: [],
+          subscribers: []
+        };
+        const baseRef = this.afs.collection('todolists');
+        const batch = this.afs.firestore.batch();
+        batch.set(baseRef.doc(newList.uuid).ref, newList);
+        for (const item of items) {
+          batch.set(baseRef.doc(newList.uuid).collection('todoitems').doc(item.uuid).ref, item);
+        }
+        await batch.commit();
       }
-      await batch.commit();
     }
-    await loading.dismiss();
-
+    catch (error) {
+      alert('Error during copy !');
+    }
+    finally {
+      await loading.dismiss();
+    }
   }
-
 } 

@@ -56,17 +56,24 @@ export class ImageUploaderService {
     async uploadImage(image: string, listID) {
         const loader = await this.loading.create({ message: 'Uploading your image !' });
         await loader.present();
-        const storageRef = this.afs.storage.ref();
-        const imageRef = storageRef.child('image').child(listID).child('mainImage.jpeg');
-        const metadata = {
-            contentType: 'image/jpeg',
-        };
+        try {
+            const storageRef = this.afs.storage.ref();
+            const imageRef = storageRef.child('image').child(listID).child('mainImage.jpeg');
+            const metadata = {
+                contentType: 'image/jpeg',
+            };
 
-        imageRef.putString(image, 'base64', metadata).then(async (res) => {
-            this.todoService.editDownloadURL(listID, await imageRef.getDownloadURL());
-        }).finally(() => {
+            imageRef.putString(image, 'base64', metadata).then(async (res) => {
+                this.todoService.editDownloadURL(listID, await imageRef.getDownloadURL());
+            });
+        }
+        catch (error) {
+            alert('Error during upload !');
+        }
+        finally {
             loader.dismiss();
-        });
+        }
+
     }
 
     async uploadAudio(audioFile: string, conversationID, fileName, friendID) {
