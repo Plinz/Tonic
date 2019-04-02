@@ -20,13 +20,30 @@ export class ImageUploaderService {
     ) {
     }
 
-    findPic(listID) {
+    getPic(listID) {
         this.imagePicker.getPictures({ maximumImagesCount: 1, outputType: 1, quality: 50 }).then((res) => {
             if (res && res[0]) {
                 this.uploadImage(res[0].replace("data:image/jpeg;base64,", ""), listID);
             }
         }, (error) => {
         });
+    }
+
+    async findPic(listID) {
+        this.imagePicker.hasReadPermission().then((permission: boolean) => {
+            console.log(permission);
+            if (permission) {
+                this.getPic(listID);
+            } else {
+                this.imagePicker.requestReadPermission().then(
+                    async () => {
+                        if (await this.imagePicker.hasReadPermission()) {
+                            this.getPic(listID);
+                        }
+                    }
+                )
+            }
+        })
     }
 
     useCam(listID) {
