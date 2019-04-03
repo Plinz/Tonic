@@ -1,5 +1,5 @@
 # Tonic
-Application Ionic de Todo List
+Application Ionic de Todo List par DUQUENNOY Antoine et GONTARD Benjamin
 
 ## Fonctionnalités supplémentaires en bref (en plus de celles imposées):
  * Géolocalisation
