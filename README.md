@@ -196,4 +196,51 @@ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.
 -Optimiser l'APK (zipalign se trouve dans le dossier Android/sdk/build-tools/...)
 
 zipalign -v 4 .\app-release-unsigned.apk Tonic.apk
+
 ## L’export des règles sécurité de Firebase
+
+```sh
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	function signedIn() {
+      return request.auth.uid != null && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    
+    function updateList(){
+    	return (signedIn() && request.auth.uid != resource.data.owner && 
+      	request.resource.data.items == resource.data.items &&
+        request.resource.data.name == resource.data.name &&
+        request.resource.data.nbNotFinished == resource.data.nbNotFinished &&
+        request.resource.data.owner == resource.data.owner &&
+        request.resource.data.shared == resource.data.shared &&
+        request.resource.data.photoURL == resource.data.photoURL &&
+        request.resource.data.uuid == resource.data.uuid) ||
+        request.auth.uid == resource.data.owner;
+    }
+        
+    match /devices/{device} {
+    	allow read: if signedIn();
+    	allow write: if signedIn() && request.auth.uid == request.resource.data.userId;
+    }
+    match /todolists/{todolist} {
+    	allow read: if signedIn();
+      allow update: if updateList();
+      allow create: if signedIn() && request.auth.uid == request.resource.data.owner;
+      allow delete: if signedIn() && request.auth.uid == resource.data.owner;
+    }
+    match /todolists/{todolist}/todoitems/{todoitem} {
+    	allow read: if signedIn();
+      allow write: if (signedIn() && get(/databases/$(database)/documents/todolists/$(todolist)).data.shared) || (!get(/databases/$(database)/documents/todolists/$(todolist)).data.shared && get(/databases/$(database)/documents/todolists/$(todolist)).data.owner == request.auth.uid);
+    }
+    match /users/{user} {
+    	allow read: if signedIn();
+    	allow create;
+      allow update, delete: if signedIn();
+    }
+    match /conversations/{conversation}/messages/{message} {
+    	allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == request.resource.data.sender;
+    }
+  }
+}
+```
